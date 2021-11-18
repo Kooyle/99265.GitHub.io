@@ -7,8 +7,6 @@ baseurl: "" # the subpath of your site, e.g. /blog
 url: "" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: nenge123
 github_username:  nenge123
-
-url:        	 http://localhost:4000
 #baseurl:     /
 #url:         http://localhost:4000
 # Owner/author information
