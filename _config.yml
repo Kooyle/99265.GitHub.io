@@ -13,13 +13,21 @@ github_username:  nenge123
 page:
   title: ""
   description: ""
+
 # Build settings
-timezone:    Asia/ShangHai
-future:      true
+timezone: Asia/ShangHai
+future: true
 highlighter: rouge
-markdown:    kramdown
-paginate:    5
-paginate_path: "page:num"
+markdown: kramdown
+
+
+paginate: 6
+paginate_path: "page/:num"
+
+gems:
+  - jekyll-feed
+  - jekyll-paginate
+
 #theme: minima
 sass:
     sass_dir: assets/sass
@@ -27,14 +35,9 @@ sass:
 
 permalink: /article/:year:month:day/:title.html
 
-plugins: [jekyll-paginate]
-
-plugins_dir:
-- jemoji
-- jekyll-paginate
-
 plugins:
   - jekyll-feed
+  - jekyll-paginate
 
 # Exclude from processing.
 # The following items will not be processed, by default.

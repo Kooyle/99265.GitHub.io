@@ -1,0 +1,8 @@
+{%- if paginator.total_pages -%}
+<div class="nav-page">
+  <a class="prev{% if paginator.previous_page %} active{% else %} disable{% endif %}" href="{{ paginator.previous_page_path | default:"#" }}">上一页</a>
+  <span>第{{ paginator.page }}页 一 共{{ paginator.total_pages }}页</span>
+  <a class="next{% if paginator.next_page %} active{% else %} disable{% endif %}" href="{{ paginator.next_page_path | default:"#" }}">下一页</a>
+</div>
+{% endif %}
+cvcxv

@@ -1,0 +1,18 @@
+<article class="post-article">
+  <div class="post-avatar" style="background:url({{ post.avatar | default: site.data.members.avatar}})"></div>
+  <div class="post-meta">
+    <p class="post-author">{{ post.author | default: site.data.members.author}}</p>
+    <time class="post-date">{{ post.date | date: "%Y/%m/%d %H:%M:%S" }}</time>
+  </div>
+  <div class="post-body">
+    <div class="post-banner" style="background-image:url({{ post.banner | default: site.data.members.banner}}?{{ post.id }})">
+      <a class="post-cate" href="/categories.html#{{ post.categories }}">{{ post.categories }}</a>
+    </div>
+    <details open>
+    <summary><a class="post-title" href="{{ post.url }}">{{ post.title }}</a></summary>
+      <div class="post-content">
+        {{ post.content | strip_html | truncate:200 }}
+      </div>
+    </details>
+  </div>
+</article>

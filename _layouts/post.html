@@ -3,26 +3,28 @@ layout: default
 ---
 <main class="page-content post" aria-label="Content">
   <div class="wrapper">
-    <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
-      <header class="post-header">
+    <article class="post post-page h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+      <div class="post-banner" style="background-image:url({{ page.banner | default: site.data.members.banner2}}?{{ page.id }})">
+        <a class="post-cate" href="/categories.html#{{ page.categories }}">{{ page.categories }}</a>
+      </div>
+      <div class="post-info">
+        <div class="post-avatar" style="background:url({{ page.avatar | default: site.data.members.avatar}})"></div>
+        <div class="post-meta">
+          <p class="post-author">{{ page.author | default: site.data.members.author}}</p>
+          <time class="post-date">{{ page.date | date: "%Y/%m/%d %H:%M:%S" }}</time>
+        </div>
         <h1 class="post-title p-name" itemprop="name headline">{{ page.title | escape }}</h1>
-        <p class="post-meta">
-          <time class="dt-published" datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">
-            {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
-            {{ page.date | date: date_format }}
-          </time>
-          {%- if page.author -%}
-            • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span class="p-author h-card" itemprop="name">{{ page.author }}</span></span>
-          {%- endif -%}</p>
-      </header>
+      </div>
+      <header class="post-header">
 
+      </header>
       <div class="post-content e-content" itemprop="articleBody">
         {{ content }}
       </div>
-      {%- if site.disqus.shortname -%}
-        {%- include disqus_comments.html -%}
-      {%- endif -%}
-      <a class="u-url" href="{{ page.url | relative_url }}" hidden></a>
     </article>
+    <div class="post-replay">
+      <h3>评论</h3>
+      <replay-comments id="lv-container" data-id="city" data-uid="MTAyMC8zNTMzMC8xMTg2Ng=="></replay-comments>
+    </div>
   </div>
 </main>
