@@ -4,8 +4,8 @@ layout: default
 <main class="page-content post" aria-label="Content">
   <div class="wrapper">
     <article class="post post-page h-entry" itemscope itemtype="http://schema.org/BlogPosting">
-      <div class="post-banner" style="background-image:url({{ page.banner | default: site.data.members.banner2}}?{{ page.id }})">
-        <a class="post-cate" href="/categories.html#{{ page.categories }}">{{ page.categories }}</a>
+      <div class="post-banner" style="background-image:url({{ page.banner | default: site.data.members.banner2}})">
+        {%- if page.categories -%}<a class="post-cate" href="/categories.html#{{ page.categories }}">{{ page.categories }}</a>{%- endif -%}
       </div>
       <div class="post-info">
         <div class="post-avatar" style="background:url({{ page.avatar | default: site.data.members.avatar}})"></div>

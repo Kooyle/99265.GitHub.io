@@ -1,3 +1,4 @@
+'use  strict';
 (()=>{
     let NengeNet = 'NengeNet';
     window[NengeNet] = new class NengeApp {
@@ -5,8 +6,8 @@
     FILE = {};
     DB_tableList = {
         'base.zip': {
-            'ver': 1.2,
-            'files': ['comments.js']
+            'ver': 1.3,
+            'files': ['comments.js','Nengeicons.woff']
         }
     };
     constructor() {
@@ -90,17 +91,17 @@
     }
     _GetType(type) {
         switch (type) {
+            case 'style':
             case 'css':
                 return ['link', 'href', 'text\/css', 'stylesheet','css'];
             break;
             case 'js':
                 return ['script', 'src', 'text\/javascript', '','js'];
             break;
-            case 'style':
-                return ['link', 'href', 'text\/css', 'stylesheet','css'];
-            break;
+            case 'otf':
             case 'ttf':
             case 'woff':
+            case 'woff2':
                  return ['style', '', 'text\/css', 'stylesheet','fonts'];
             break;
         }
@@ -119,7 +120,7 @@
             type = nameAry.pop(),
             filename = nameAry.pop(),
             _t = this._GetType(type),
-            elm = document.createElement(_t[0]),link;
+            link;
         if (data) {
             link = window.URL.createObjectURL(new Blob([data], {type: _t[2]}));
             this.FILE[name] = link;
@@ -127,14 +128,15 @@
             link = this.assetsDIR +_t[4]+'/'+ name + '?' + (new Date()).getTime();
             this.FILE[name] = link;
         }
+        if(_t[4]&&_t[4]=='fonts'){
+            let str = '@font-face {font-family: "'+filename+'";src: url(\''+link+'\') format("'+type+'");}';
+            return this._AddLink(filename+'.css',str);
+        }
+        let elm = document.createElement(_t[0]);
+        elm[_t[1]] = link;
         elm.type = _t[2];
         elm.charset=_t[5]?_t[5]:"utf-8";
-        if(_t[3])elm.rel = _t[3]
-        if(_t[4]&&_t[4]=='fonts'){
-            elm.innerHTML = '@font-face {font-family: "'+filename+'";src: url(\''+link+'\')}';
-        }else{
-            elm[_t[1]] = link;
-        }
+        if(_t[3])elm.rel = _t[3];
         document.head.appendChild(elm);
         if(data) window.URL.revokeObjectURL(link);
         return elm;

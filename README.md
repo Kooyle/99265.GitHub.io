@@ -106,6 +106,7 @@ ssh-rsa xxxxxxxxxxxxxxxx= m@nenge.net
 ```bash
   cd my-awesome-site
   git init
+  #origin 为默认分支
   git remote add origin git@github.com:nenge123/nenge123.git
   git config --global user.name nenge123
   git config --global user.email m@nenge.net
@@ -115,9 +116,9 @@ ssh-rsa xxxxxxxxxxxxxxxx= m@nenge.net
   git status ./
   git add ./*
   git commit -m "更新2021-11-29"
-  #git push origin master
+  #git push
   #强制更新 git push --force origin master
-  git push
+  git push origin master
 
 ```
 

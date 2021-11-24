@@ -5,7 +5,7 @@
     <time class="post-date">{{ post.date | date: "%Y/%m/%d %H:%M:%S" }}</time>
   </div>
   <div class="post-body">
-    <div class="post-banner" style="background-image:url({{ post.banner | default: site.data.members.banner}}?{{ post.id }})">
+    <div class="post-banner" style="background-image:url({{ post.banner | default: site.data.members.banner}})">
       <a class="post-cate" href="/categories.html#{{ post.categories }}">{{ post.categories }}</a>
     </div>
     <details open>
