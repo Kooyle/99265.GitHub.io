@@ -100,13 +100,15 @@ ssh-rsa xxxxxxxxxxxxxxxx= m@nenge.net
 - setting
 - SSH ans GPG keys
 - New SSH key
+- 码云Gitee→设置→SSH
 
 ### Ubuntu20.04LTS
 
 ```bash
   cd my-awesome-site
   git init
-  #origin 为默认分支
+  #origin 为默认远程源分支
+  #设置不同源分支 git remote add gitee git@gitee.com:nenge/nenge.git
   git remote add origin git@github.com:nenge123/nenge123.git
   git config --global user.name nenge123
   git config --global user.email m@nenge.net
@@ -117,7 +119,8 @@ ssh-rsa xxxxxxxxxxxxxxxx= m@nenge.net
   git add ./*
   git commit -m "更新2021-11-29"
   #git push
-  #强制更新 git push --force origin master
+  #git push -f gitee master
+  #强制更新 git push --f origin master
   git push origin master
 
 ```

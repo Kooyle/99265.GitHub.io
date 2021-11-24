@@ -1,10 +1,6 @@
 ---
 ---
-@font-face {
-  font-family: "Nengeicons";
-  src: url("../fonts/Nengeicons.woff?t=1522724531219") format("woff"),
-       url('../fonts/Nengeicons.otf?t=1522724531219') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
-}
+
 :root{
   --fontsize-min:.75rem; //12px
   --fontsize-base: 0.875rem; //14px
@@ -128,8 +124,6 @@ img{max-width: 100%;}
         align-items: center;
         padding: 10px;
         border-radius: 10px;
-        a{
-        }
       }
     }
     >.page-content{
@@ -145,64 +139,61 @@ img{max-width: 100%;}
     }
   }
 }
-//.post-content{
-  .table{
-    margin: 2px;
-    border-collapse: unset;
-    border: 0px;
-    &.center{
-      text-align: center;
+.table{
+  margin: 2px;
+  border-collapse: unset;
+  border: 0px;
+  &.center{
+    text-align: center;
+  }
+  td,th{
+    border: 1px solid var(--color-blue2);
+    line-height: 200%;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  >thead>tr,>tr,>tbody>tr{
+    th{
+      background: var(--color-blue1);
+      color: #fff;
+      line-height: 100%;
+    }
+    &:first-child th:last-child{
+      border-top-right-radius:10px;
+      padding: 10px;
+    }
+    &:first-child th:first-child {
+      border-top-left-radius: 10px;
+    }
+  }
+  &.dark{
+    background: #343a40;
+    border-collapse: collapse;
+    border:none;
+    tr:nth-child(odd){
+      background-color:#ffffff0d;
+    }
+    tr:nth-child(even){
+      background: none;
     }
     td,th{
-      border: 1px solid var(--color-blue2);
-      line-height: 200%;
-      padding-left: 8px;
-      padding-right: 8px;
+      border: 1px solid #454d55;
+      background: transparent;
+      padding: 12px;
+      color: #fff;
+      font-size: var(--fontsize-min);
     }
     >thead>tr,>tr,>tbody>tr{
       th{
-        background: var(--color-blue1);
-        color: #fff;
-        line-height: 100%;
+        background: transparent;
+        line-height: 200%;
       }
       &:first-child th:last-child{
-        border-top-right-radius:10px;
-        padding: 10px;
-      }
-      &:first-child th:first-child {
-        border-top-left-radius: 10px;
-      }
-    }
-    &.dark{
-      background: #343a40;
-      border-collapse: collapse;
-      border:none;
-      tr:nth-child(odd){
-        background-color:#ffffff0d;
-      }
-      tr:nth-child(even){
-      }
-      td,th{
-        border: 1px solid #454d55;
-        background: transparent;
         padding: 12px;
-        color: #fff;
-        font-size: var(--fontsize-min);
-      }
-      >thead>tr,>tr,>tbody>tr{
-        th{
-          background: transparent;
-          line-height: 200%;
-        }
-        &:first-child th:last-child{
-          padding: 12px;
-        }
-        &:first-child th:first-child {
-        }
       }
     }
   }
-//}
+}
 
 .post-list{
   @media screen and (min-width: 768px){
@@ -384,8 +375,6 @@ img{max-width: 100%;}
         }
       }
     }
-    >.post-header{
-    }
     >.post-content{
       padding:10px;
     }
@@ -430,6 +419,11 @@ img{max-width: 100%;}
   }
 }
 
+.post-content{
+  >blockquote{
+    border-left: 3px solid #000;
+  }
+}
 
 .nav-page{
   display: flex;
