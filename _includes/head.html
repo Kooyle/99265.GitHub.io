@@ -1,9 +1,9 @@
-<title>{% if page.title~='BLOG' %}{{ page.title}} - {% endif %}{{ site.title | upcase }}</title>
+<title>{%- if page.title~='BLOG' -%}{{ page.title}} - {%- endif -%}{{ site.title | upcase }}</title>
 <meta charset="utf-8">
 <!-- Open Graph -->
 <meta property="og:locale" content="zh_CN.GB18030">
 <meta property="og:type" content="article">
-<meta property="og:title" content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}">
+<meta property="og:title" content="{%- if page.title -%}{{ page.title }}{%- else -%}{{ site.title }}{%- endif -%}">
 <meta property="og:description" content="{{ page.description | default: site.description | default: " " }}">
 <meta property="og:url" content="{{ page.url }}">
 <meta property="og:site_name" content="{{ site.title }}">

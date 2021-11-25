@@ -171,21 +171,21 @@ previous_page_path 上一页路径 或 nil（如果上一页不存在）
 next_page 下一页页码 或 nil（如果下一页不存在）
 next_page_path 下一页路径 或 nil（如果下一页不存在）
 -->
-{{ "{%" }} if site.paginate %}
-  {{ "{%" }} for post in paginator.posts %}
+{{ "{%" }} if site.paginate -%}
+  {{ "{%" }} for post in paginator.posts -%}
     <h1><a href="{{ "{{" }} post.url }}">{{ "{{" }} post.title }}</a></h1>
-  {{ "{%" }} endfor %}
-  {{ "{%" }} if paginator.previous_page %}
+  {{ "{%" }} endfor -%}
+  {{ "{%" }} if paginator.previous_page -%}
     <a class="newer-posts" href="{{ "{{" }} paginator.previous_page_path }}"><i class="fa fa-chevron-left"></i> 上一页</a>
-  {{ "{%" }} endif %}
-  {{ "{%" }} if paginator.next_page %}
+  {{ "{%" }} endif -%}
+  {{ "{%" }} if paginator.next_page -%}
     <a class="newer-posts" href="{{ "{{" }} paginator.next_page_path }}"><i class="fa fa-chevron-left"></i> 上一页</a>
-  {{ "{%" }} endif %}
-{{ "{%" }} else %}
-  {{ "{%" }} for post in site.posts %}
+  {{ "{%" }} endif -%}
+{{ "{%" }} else -%}
+  {{ "{%" }} for post in site.posts -%}
     <h1><a href="{\{ post.url }}">{\{ post.title }}</a></h1>
-  {{ "{%" }} endfor %}
-{{ "{%" }} endif %}
+  {{ "{%" }} endfor -%}
+{{ "{%" }} endif -%}
 
 ```
 

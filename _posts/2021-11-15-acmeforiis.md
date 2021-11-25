@@ -5,7 +5,7 @@ date:   2021-11-15 19:28:39 +0800
 categories: acme
 ---
 ### 安装WSL ubuntu-20.04LTS
-- 参考 [ubuntu-20.04LTS安装]({% link README.md %})
+- 参考 [ubuntu-20.04LTS安装]({%- link README.md -%})
 
 ### 安装Acme.sh
 ```shell

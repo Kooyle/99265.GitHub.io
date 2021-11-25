@@ -3,15 +3,15 @@ layout: default
 ---
 <main class="page-content home" aria-label="Content">
   <div class="wrapper">
-      {% if site.paginate %}
+      {%- if site.paginate -%}
         <section class="post-list">
           <!-- This loops through the paginated posts -->
-      {% for post in paginator.posts %}
+      {%- for post in paginator.posts -%}
       {%- include home_page.html -%}
-      {% endfor %}
+      {%- endfor -%}
     </section>
       {%- include nav_page.html -%}
-      {%endif%}
+      {%- endif -%}
       <fieldset class="wbox">
     <legend class="title">健康信息 <a href="#">hfgdfg</a></legend>
     <div class="content">vxzvzv</div>

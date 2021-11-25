@@ -2,7 +2,7 @@
 (()=>{
     let NengeNet = 'NengeNet';
     window[NengeNet] = new class NengeApp {
-    localServer = 0;//document.domain.search(/localhost|127.0./g) !== -1;
+    localServer = document.domain.search(/localhost|127.0./g) !== -1;
     FILE = {};
     DB_tableList = {
         'base.zip': {
