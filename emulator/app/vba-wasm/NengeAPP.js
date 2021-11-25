@@ -1434,7 +1434,7 @@ var NengeApp = {
 					Ready();
 				}else{
 					_.showMsg("正在下载核心文件");
-					fetch('Core.zip?'+Math.random()).then(v=>v.arrayBuffer()).then((buf)=>{
+					fetch('Core2.zip?'+Math.random()).then(v=>v.arrayBuffer()).then((buf)=>{
 						JSZip.loadAsync(buf,{optimizedBinaryString: true}).then(zip=>{
 							let DATAS = {'ver':_.ver,'files':{}},
 								checkRun = ()=>{
