@@ -26,14 +26,14 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<link rel="apple-touch-icon" href="gba2.png">
 <!--
+<link rel="apple-touch-icon" href="gba2.png">
+<link rel="icon" href="gba2.png" type="image/png" />
 <link rel="apple-touch-icon" sizes="57x57" href="touch-icon-iphone.png" />
 <link rel="apple-touch-icon" sizes="72x72" href="touch-icon-ipad.png" />
 <link rel="apple-touch-icon" sizes="114x114" href="touch-icon-iphone4.png" />  
 <link rel="apple-touch-icon" sizes="144x144" href="apple-touch-icon-ipad3-144.png" />
--->
-<link rel="icon" href="gba2.png" type="image/png" />  
+-->  
 <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height">
 <title>GBA模拟器</title>
 <style type="text/css">
@@ -145,5 +145,7 @@
 <script type="text/javascript" src="https://cdn.bootcdn.net/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script type="text/javascript" src="https://cdn.bootcdn.net/ajax/libs/jszip/3.6.0/jszip.min.js"></script>
 <script type="text/javascript" src="https://cdn.bootcdn.net/ajax/libs/localforage/1.9.0/localforage.min.js"></script>
-<script type="text/javascript" src="NengeAPP.min.js"></script>
+<script type="text/javascript">
+	document.write('<script type="text/javascript" src="NengeAPP'+(document.domain.search(/localhost|127.0./g) !== -1?"":".min")+'.js"><\/script>');
+</script>
 </html>
