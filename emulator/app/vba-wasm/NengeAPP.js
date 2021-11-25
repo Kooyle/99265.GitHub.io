@@ -407,7 +407,8 @@ var NengeApp = {
 			css += SkinClass + '.vk[data-k=' + i + ']{position: absolute;background:rgba(0,0,0,0.1);color:rgba(255,255,255,0.6);z-index:6;text-align:center;' + oldStyleData[i] + '}';
 
 		}
-		css += SkinClass + _.GBABTN + '{position: absolute;top:10px;margin:0px auto auto auto;left:0;text-align:center;right:0;bottom:0;z-index:5;display:inline-block;opacity:0.8;}' +
+		css += SkinClass + _.GBABTN + '{position: absolute;width:' + canvasWidth + 'px;height:' + canvasHeight + 'px;top:' + canvasTop + 'px;left:' + canvasLeft + 'px;margin:0px auto auto auto;text-align:center;z-index:5;display:inline-block;opacity:0.3;}' +
+			SkinClass + _.GBABTN + 'button{background:rgba(0,0,0,0.1);}'+
 			SkinClass + _.CANVAS + ',' +
 			SkinClass + _.GBAMSG + ',' +
 			SkinClass + _.GBANAV + '{width:' + canvasWidth + 'px;height:' + canvasHeight + 'px;top:' + canvasTop + 'px;left:' + canvasLeft + 'px;position: absolute;z-index:2;}' +
@@ -446,7 +447,7 @@ var NengeApp = {
 		}
 		MaxW = MaxW > 900 ? 900 : MaxW;
 		for (var skinName in _["SkinData"]) {
-			layerBody.addClass(skinName);
+			layerBody[0].classList.add(skinName);
 			var SkinData = _["SkinData"][skinName][_Type];
 			if (!SkinData) {
 				CSSText += _.yuanban(MaxW, MaxH, _Type, skinName);
@@ -530,10 +531,13 @@ var NengeApp = {
 				SkinClass + '.vk[data-k=turbo]:after{content:\"加速\";position: absolute;left:0px;top:0px;font-size:1rem;width:100%;height:100%;color:#000;line-height:150%;}' +
 				SkinClass + '.vk[data-k=menu]{font-size:60% !important;line-height:150% !important}';
 		}
-		if (CSSText) {
-			var CSSSTYLE = $("<style id='" + skinName + _W + "'>" + CSSText + "}</style>");
-			$("head").append(CSSSTYLE);
+		let c = document.querySelector('#skincss');
+		if(!c){
+			c = document.createElement('style');
+			c.id = '#skincss';
+			document.head.appendChild(c);
 		}
+		c.innerHTML = CSSText;
 		$(_["LAYER"]).show();
 		_[_Type + _W] = Width;
 	},
@@ -1422,7 +1426,7 @@ var NengeApp = {
 					return link;
 			},
 			Ready = ()=>{
-				clink('portrait.png','@media only screen and (max-width: 414px){.BulbasaurGBA #GBA-layer{background-image: url(' +_.Link['portrait.png'] + ');background-position: top center;background-repeat:no-repeat;background-size: contain;}}',"stylesheet"),clink('gba2.png',null,"apple-touch-icon"),clink('gba2.png',null,"icon"),cscript('GBK.js'),cscript('a.out.js');
+				clink('portrait.png','@media only screen and (min-width: 414px){.BulbasaurGBA #GBA-Btn{top:10px !important;}#emulatorGBA.BulbasaurGBA #GBA-Btn button{background:rgba(0,0,0,0.1);}}@media only screen and (max-width: 700px){.BulbasaurGBA #GBA-layer{background-image: url(' +_.Link['portrait.png'] + ');background-position: top center;background-repeat:no-repeat;background-size: contain;}}',"stylesheet"),clink('gba2.png',null,"apple-touch-icon"),clink('gba2.png',null,"icon"),cscript('GBK.js'),cscript('a.out.js');
 			};
 		_.Link = {};
 		_.FILE.DB.getItem('COREDATA').then( 
