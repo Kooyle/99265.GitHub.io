@@ -1,23 +1,9 @@
 <!--
-<script>
-/**
-* Copyright (c) 2021, Nenge.net All rights reserved.
-* 本软件遵从GPL2.0协议 转载保留本注释,可自由分发，修改。
-* 编写人 Nenge.net
+* GPL2.0
+* Nenge.net
 * NengeApp.js 加载执行文件
-* Core.zip 44670源文件打包压缩（加速加载速度）
-* 编写人 44670.org Git:https://github.com/44670/vba-next-wasm
-* a.out.js 
-* a.out.wasm
-* forked from libretro/vba-next (https://github.com/libretro/vba-next)
-* 其他文件
-* jquery-3.2.1.min.js
-* jszip.min.js 解压压缩包
-* localforage.js indexDBg工具
-* GBK.js 对JSZIP处理ZIP文件时，中文乱码时转码。
+* Fork Git:https://github.com/44670/vba-next-wasm
 *
-*/
-</script>
 -->
 <!doctype html>
 <html lang="cmn">
@@ -26,9 +12,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<!--
 <link rel="apple-touch-icon" href="gba2.png">
 <link rel="icon" href="gba2.png" type="image/png" />
+<!--
 <link rel="apple-touch-icon" sizes="57x57" href="touch-icon-iphone.png" />
 <link rel="apple-touch-icon" sizes="72x72" href="touch-icon-ipad.png" />
 <link rel="apple-touch-icon" sizes="114x114" href="touch-icon-iphone4.png" />  
@@ -36,116 +22,217 @@
 -->  
 <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height">
 <title>GBA模拟器</title>
-<style type="text/css">
- html,body,#emulatorGBA {position:absolute;
-	 		z-index: -1;
-            overflow: hidden;
-            -webkit-user-select: none; user-select: none;-webkit-touch-callout:none;touch-action: none;cursor: inherit;
-	 		height: 100%;
-	 		width:100%;
-	 		margin: auto;padding: 0;background:#77b7ac;
-	}
-	#emulatorGBA *{-webkit-user-select: none; user-select: none;-webkit-touch-callout:none;touch-action: none;cursor: inherit;}
-	.vk-touched {background-color: rgba(255, 255, 255, 0.75) !important}
-	#emulatorGBA button{border-radius: 5px;border: 1px solid #fff;background: #fff;margin: 1px 2px;padding: 1px;text-shadow: 1px 1px 1px #000000;color: #fff;background:#2F44C1;}
-	.GBAMENU,.GBAMENU a{text-shadow: 1px 1px 1px #333;color:#FFF;padding: 5px;}
-	#game-files{touch-action:auto !important;background-color: rgba(0, 0, 0, 0.65) !important;}
-	#emulatorGBA #game-files p[data-pre="save"] button[data-action="runGame"]{background:#BF3035;}
-	#emulatorGBA #game-files p button[data-action="del"]{font-size: 50% !important;background-color:#CDA221;}
-	.zip-game-name{display: inline-block;margin: 2px;padding: 1px;border: 1px solid #fff;background:#000;}
-	.active{border:1px solid #2F44C1;background: red;}
-	.gamepadbutton{display: flex;width: 100%;overflow: hidden;flex-direction:row;flex-wrap:wrap;justify-content:space-between;align-content:left}
-	.gamepadbutton p{display: inline-block;margin: 5px;width:46%}
-	#game-zip,#game-files{padding:5px;overflow-y:scroll !important;touch-action: auto !important;font-size: 60%;}
-</style>
+<script src="./worker.js"></script>
 </head>
 <body>
-<div id="emulatorGBA">
-  <canvas width="240" height="160" id="GBA-canvas" style="touch-action: none;image-rendering: pixelated;"></canvas>
-    <input type="file" accept="*" id="upGba" class="inputFile" style="display: none">
-    <input type="file" accept="*" id="upSrm" class="inputFile" style="display: none">
-  <div id="GBA-layer" style="display: none;">
-    <div class="vk-rect vk" data-k="menu">重启</div>
-    <div class="vk-rect vk" data-k="turbo">加速</div>
-    <div class="vk-rect vk" data-k="l">L</div>
-    <div class="vk-rect vk" data-k="r">R</div>
-    <div class="vk-round vk" data-k="a">A</div>
-    <div class="vk-round vk" data-k="b">B</div>
-    <div class="vk-rect vk" data-k="select">Select</div>
-    <div class="vk-rect vk" data-k="start">Start</div>
-    <div class=" vk" data-k="left">←</div>
-    <div class=" vk" data-k="right">→</div>
-    <div class=" vk" data-k="up">↑</div>
-    <div class=" vk" data-k="down">↓</div>
-    <div class=" vk vk-hide" style="background-color: transparent !important" data-k="ul"></div>
-    <div class=" vk vk-hide" style="background-color: transparent !important" data-k="ur"></div>
-    <div class=" vk vk-hide" style="background-color: transparent !important" data-k="dl"></div>
-    <div class=" vk vk-hide" style="background-color: transparent !important" data-k="dr"></div>
-  </div>
-  <div id="GBA-GAMEMenu" class="GBAMENU" style="display: none;">
-	  <p></p>
-	   <p><button data-action="CloseMenu" data-target="#GBA-GAMEMenu">关闭菜单</button> | <button data-action="upGba">读取本地游戏</button>
-    <button class="menu-button" data-action="upSrm">读取本地存档</button>
-    <button class="menu-button" data-action="downSrm">下载存档到本地</button></p>
-	  <p>Ver. 20210114 | 原作者<a target="_blank" href="https://github.com/44670/vba-next-wasm">https://github.com/44670/vba-next-wasm</a></p>
-	  <div id="game-code"></div>
-	 <!--h3> Memory Hacking:</h3>
-        <p><input id="ReadCode" value="0x">
-        <button data-action="ReadCode">读取ReadAddress</button></p>
-        <p><input id="WriteCode">
-        <button data-action="WriteCode">写入WriteAddress</button></p>
-		<div id="cheat"></div-->
-		
-  </div>
-  <div id="GBA-Menu" class="GBAMENU" style="display: none;"> <p></p>
-	  <p><button data-action="CloseMenu">关闭菜单</button> | <button data-action="upGba">上传游戏</button>
-    <button class="menu-button" data-action="upSrm">上传存档</button>
-    <button class="menu-button" data-action="downSrm">下载存档</button><button data-action="rePage">刷新页面</button></p>
-	  <div class="game-data">
-	  	<div id="game-files"></div>
-		<div id="game-zip" style="flex: auto;display: none;">
-		<p style="width:100px;margin: 5px;"></p>
-	  	<div id="downZip"></div>
-		</div>
-	  </div>
-  </div>
-  <div id="GBA-Msg"></div>
-  <div id="GBA-Tips" style="display: none">
-	</div>
-  <div id="GBA-Nav" style="display: none"></div>
-	<div id="GBA-GAMEPAD" class="GBAMENU" style="display: none">
-	  <p></p>
-		<p><button data-action="CloseMenu" data-target="#GBA-GAMEPAD">关闭菜单</button> <button data-action="SetGamePad" data-target="#GBA-GAMEPAD">保存设置SaveSetting</button></p>
-			<h3>手柄设置:参照PS4手柄DUALSHOCK</h3>
-		<div class="gamepadbutton">
-			<p >B键X:<input data-index="key-b" type="text" pattern="[0-9]" size="2" value="0"></p>
-			<p >A键O:<input data-index="key-a" type="text" pattern="[0-9]" size="2" value="1"></p>
-			<p >选择□:<input data-index="key-select" type="text" pattern="[0-9]" size="2" value="2"></p>
-			<p >开始▲:<input data-index="key-start" type="text" pattern="[0-9]" size="2"></p>
-			<p >L键L1:<input data-index="key-l" type="text" pattern="[0-9]" size="2" value="4"></p>
-			<p >R键R1:<input data-index="key-r" type="text" pattern="[0-9]" size="2" value="5"></p>
-			<p >读档L2:<input data-index="key-read" type="text" pattern="[0-9]" size="2" value="6"></p>
-			<p >存档R2:<input data-index="key-save" type="text" pattern="[0-9]" size="2" value="7"></p>
-			<p >上UP:<input data-index="key-up" type="text" pattern="[0-9]" size="2" value="12"></p>
-			<p >下DOWN:<input data-index="key-down" type="text" pattern="[0-9]" size="2" value="13"></p>
-			<p >左LEFT:<input data-index="key-left" type="text" pattern="[0-9]" size="2" value="14"></p>
-			<p >右RIGHT:<input data-index="key-right" type="text" pattern="[0-9]" size="2" value="15"></p>
-		</div>
-			<h3>电脑设置</h3>
-		<div class="gamepadbutton"></div>
-	</div>
-  <div id="GBA-Btn" style="display: none">
-    <button class="menu-button" data-action="openMusic">启用音乐</button><button>慎用音乐耗电</button>
-    <!--button class="menu-button" data-action="GamePad">手柄/Gamepad</button-->
-    <!--button class="menu-button" data-action="otherPage">OtherPage</button-->
-    <button class="menu-button" data-action="OpenMenu">游戏列表菜单</button>
-  </div>
-</div>
+    <style>
+        body {
+            padding: 0px;
+            margin: 0px;
+        }
+
+        .gba-body {
+            width: 100%;
+            max-width: 600px;
+            margin: 0px auto;
+            text-align: center;
+            background-color: #000;
+            position: relative;
+            z-index: 100;
+        }
+
+        .gba-pic {
+            max-height: 100vh;
+            max-width: 100vw;
+            width: 100%;
+            margin: 0px auto;
+            z-index: 101;
+        }
+
+        .gba-ctrl {
+            display: none;
+            z-index: 102;
+        }
+
+        .gba-list,
+        .gba-msg {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            overflow: auto;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff4d;
+            z-index: 103;
+        }
+
+        .gba-list-file,
+        .gba-list-tips,
+        .gba-list-ctrl,
+        .gba-list-pad {
+            list-style: auto;
+            font-size: 16px;
+            margin: 5px;
+            padding: 0px;
+            background-color: #ffffffdc;
+            word-break: break-all;
+        }
+
+        .gba-list li {
+            margin: 5px 0px;
+            padding: 5px 0px;
+            border-bottom: 2px #3fadfb solid;
+        }
+
+        .gba-list-file li>div {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .gba-body input[data-action] {
+            background-image: linear-gradient(180deg, #3fadfb, #2196f3b5, #2196f3);
+            border: 1px solid;
+            font-size: 18px;
+            border-radius: 5px;
+            padding: 2px;
+            margin: 15px 0px;
+        }
+
+        .gba-msg {
+            width: 300px;
+            height: 100px;
+            margin: auto;
+            right: 0;
+            bottom: 0;
+            background-color: #ffffffd9;
+            display: block;
+        }
+
+        @media screen and (max-width:600px) {
+            .gba-ctrl {
+                display: block;
+            }
+
+            .gba-body {
+                width: 100vw;
+                height: 100vh;
+                overflow: hidden;
+            }
+
+            .gba-action {
+                position: absolute;
+                right: 0px;
+                bottom: 0px;
+            }
+
+        }
+
+        @media screen and (max-height:600px) {
+            .gba-ctrl {
+                display: block;
+            }
+
+            .gba-body {
+                width: 100vw;
+                height: 100vh;
+                overflow: hidden;
+                max-width: none;
+            }
+
+            .gba-action {
+                position: absolute;
+                right: 0px;
+                bottom: 0px;
+            }
+
+            .gba-pic {
+                height: 100vh;
+                width: auto;
+            }
+
+        }
+
+        .vk {
+            position: fixed;
+            z-index: 2;
+            background-color: #ffffff4d;
+            text-align: center;
+            overflow: hidden;
+            font-size: 4rem;
+        }
+
+        .vk-round {
+            text-align: center;
+            vertical-align: middle;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+
+        .vk {
+            color: rgba(0, 0, 0, 0.2);
+            background-color: rgba(255, 255, 255, 0.25);
+            position: absolute;
+            z-index: 1;
+            text-align: center;
+            vertical-align: middle;
+            display: inline-block;
+        }
+
+        .vk-hide {
+            background-color: transparent !important
+        }
+
+        .vk-touched {
+            background-color: rgba(255, 255, 255, 0.75) !important
+        }
+    </style>
+    <div class="gba-body">
+        <canvas class="gba-pic" width="240" height="160"></canvas>
+        <div class="gba-action">
+            <input type="button" value="zip/gba/srm" data-action="upload">
+            <input type="button" value="查看记录" data-action="showList">
+            <input type="button" value="打开音乐" data-action="music">
+        </div>
+        <div class="gba-list" style="display: none;">
+            <h3 data-action="close-list">缓存文件列表 点击这里关闭</h3>
+            <ul class="gba-list-file"></ul>
+            <div class="gba-list-tips">Worker 修改版，原作：<a target="_blank"
+                    href="https://github.com/44670/vba-next-wasm">https://github.com/44670/vba-next-wasm</a><br>启用RTC方法，运行蓝宝石/绿宝石，然后运行中切换回你的游戏，如火红改版。<br>RTC启用成功！
+            </div>
+            <div class="gba-list-ctrl"></div>
+            <div class="gba-list-pad">
+                <h3>手柄参数,基于我的廉价PS4手柄（百元不到）</h3>
+                12上 13下 14左 15右<br>
+                L1/4 R1/5 R2/6 L2/7 R/10 L/11<br>
+                //0 X 1 O 2 ▲ 3 <br>SHARE 8 option 9 PS 16 触摸板按下17<br>
+                模拟器键值：<br>
+                a=&gt;0,b=&gt;1,select=&gt;2,start=&gt;3,right=&gt;4,left=&gt;5,up=&gt;6,down=&gt;7,r=&gt;8,l=&gt;9
+                <textarea class="gba-list-pad-txt" style="width: 100%;height: 300px;"></textarea>
+            </div>
+        </div>
+        <div class="gba-msg">
+
+        </div>
+        <div class="gba-ctrl">
+            <div class="vk-rect vk" data-k="reset">重启</div>
+            <div class="vk-rect vk" data-k="turbo">加速</div>
+            <div class="vk-rect vk" data-k="l">L</div>
+            <div class="vk-rect vk" data-k="r">R</div>
+            <div class="vk-round vk" data-k="a">A</div>
+            <div class="vk-round vk" data-k="b">B</div>
+            <div class="vk-rect vk" data-k="select">Select</div>
+            <div class="vk-rect vk" data-k="start">Start</div>
+            <div class=" vk" data-k="left">←</div>
+            <div class=" vk" data-k="right">→</div>
+            <div class=" vk" data-k="up">↑</div>
+            <div class=" vk" data-k="down">↓</div>
+            <div class=" vk vk-hide" data-k="ul"></div>
+            <div class=" vk vk-hide" data-k="ur"></div>
+            <div class=" vk vk-hide" data-k="dl"></div>
+            <div class=" vk vk-hide" data-k="dr"></div>
+        </div>
+    </div>
 </body>
-<script type="text/javascript" src="https://cdn.bootcdn.net/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script type="text/javascript" src="https://cdn.bootcdn.net/ajax/libs/jszip/3.6.0/jszip.min.js"></script>
-<script type="text/javascript" src="https://cdn.bootcdn.net/ajax/libs/localforage/1.9.0/localforage.min.js"></script>
-<script type="text/javascript">
-	document.write('<script type="text/javascript" src="NengeAPP'+(document.domain.search(/localhost|127.0./g) !== -1?"":".min")+'.js?1.0"><\/script>');
-</script>
 </html>
