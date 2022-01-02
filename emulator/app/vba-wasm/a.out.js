@@ -1019,10 +1019,13 @@ onmessage = function (e) {
 	}
 }
 
-Module.DATA.DB = localForage.createInstance({
+Module.DATA.DB = localForage;
+/*
+Module.DATA.DB.createInstance({
 	'name': 'NengeNet',
 	'storeName': "VBA-WASM"
 });
+*/
 Module.DATA.getDB('gba.wasm').then(data=>{
 	if(data)Module.DATA.GET_ASM(data);
 	else postMessage({'code':'needwasm'});
