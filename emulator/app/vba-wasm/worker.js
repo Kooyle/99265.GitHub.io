@@ -445,83 +445,82 @@ window.NengeApp.GBA = new class {
 
     handToch() {
         let handleTouch = (event) => {
-                let keyState = new Array(10).fill(0),
-                    elm = event.target;
-                if (elm) {
-                    let key = elm.getAttribute('data-k'),
-                        action = elm.getAttribute('data-action');
-                    if (key || action) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        if (event.type == 'touchend') {
-                            if (this.ACTION_MAP[action]) this.ACTION_MAP[action](event);
-                            else if (this.ACTION_MAP[key]) this.ACTION_MAP[key](event);
-                            return;
-                        }
-                    } else if (this.unselect.includes(elm)) {
-                        //防止拖动
-                        event.preventDefault();
-                        event.stopPropagation();
-                        return;
+            let keyState = new Array(10).fill(0),
+                elm = event.target;
+            if (elm) {
+                let key = elm.getAttribute('data-k'),
+                    action = elm.getAttribute('data-action');
+                if (key || action) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (event.type == 'touchend') {
+                        if (this.ACTION_MAP[action]) return this.ACTION_MAP[action](event);
+                        else if (this.ACTION_MAP[key]) return this.ACTION_MAP[key](event);
                     }
+                } else if (this.unselect.includes(elm)) {
+                    //防止拖动
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
                 }
-                if (event.touches && event.touches.length > 0) {
-                    if (!this.Status) return;
-                    for (var i = 0; i < event.touches.length; i++) {
-                        var t = event.touches[i];
-                        var dom = document.elementFromPoint(t.clientX, t.clientY);
-                        if (dom) {
-                            var k = dom.getAttribute('data-k');
-                            if (!k) return
-                            let index = this.keyMap.indexOf(k);
-                            if (index != -1) {
-                                keyState[index] = 1;
-                            } else {
-                                if (k == 'ul') {
-                                    keyState[5] = 1;
-                                    keyState[6] = 1;
-                                } else if (k == 'ur') {
-                                    keyState[4] = 1;
-                                    keyState[6] = 1;
-                                } else if (k == 'dl') {
-                                    keyState[5] = 1;
-                                    keyState[7] = 1;
-                                } else if (k == 'dr') {
-                                    keyState[4] = 1;
-                                    keyState[7] = 1;
-                                }
+            }
+            if (!this.Status) return;
+            if (event.touches && event.touches.length > 0) {
+                for (var i = 0; i < event.touches.length; i++) {
+                    var t = event.touches[i];
+                    var dom = document.elementFromPoint(t.clientX, t.clientY);
+                    if (dom) {
+                        var k = dom.getAttribute('data-k');
+                        if (!k) return
+                        let index = this.keyMap.indexOf(k);
+                        if (index != -1) {
+                            keyState[index] = 1;
+                        } else {
+                            if (k == 'ul') {
+                                keyState[5] = 1;
+                                keyState[6] = 1;
+                            } else if (k == 'ur') {
+                                keyState[4] = 1;
+                                keyState[6] = 1;
+                            } else if (k == 'dl') {
+                                keyState[5] = 1;
+                                keyState[7] = 1;
+                            } else if (k == 'dr') {
+                                keyState[4] = 1;
+                                keyState[7] = 1;
                             }
                         }
                     }
                 }
-                if (keyState.join(',') != this.keyState.join(',')) {
-                    this.keyState = keyState;
-                    this.worker.postMessage({
-                        code: 'sendStatus',
-                        VK: this.VK
-                    });
-                    return false;
-                }
             }
-            ['touchstart', 'touchmove', 'touchcancel', 'touchend'].forEach(
-                val => window.addEventListener(val, handleTouch, {
-                    passive: false
-                })
-            );
-            ["resize", "orientationchange"].forEach(val => {
-                window.addEventListener(val, (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    clearTimeout(this.UI_time);
-                    this.UI_time = setTimeout(() => {
-                        this.adjustVKLayout();;
-                    }, 1);
-                    return false;
-                }, {
-                    passive: false
+            if (keyState.join(',') != this.keyState.join(',')) {
+                this.keyState = keyState;
+                if (this.Status) this.worker.postMessage({
+                    code: 'sendStatus',
+                    VK: this.VK
                 });
+                return false;
+            }
+        };
+        ['touchstart', 'touchmove', 'touchcancel', 'touchend'].forEach(
+            val => window.addEventListener(val, handleTouch, {
+                passive: false
+            })
+        );
+        ["resize", "orientationchange"].forEach(val => {
+            window.addEventListener(val, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                clearTimeout(this.UI_time);
+                this.UI_time = setTimeout(() => {
+                    this.adjustVKLayout();;
+                }, 1);
+                return false;
+            }, {
+                passive: false
             });
-            this.adjustVKLayout();
+        });
+        this.adjustVKLayout();
     }
     adjustVKLayout() {
         let gbaMaxWidth = window.innerWidth,
