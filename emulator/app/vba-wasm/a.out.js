@@ -683,7 +683,7 @@ Module.DATA = new class {
 	sound(ptr, frames) {
 		if (!this.SoundActive) return;
 		if (!this.wasmAudioBuf) {
-			this.wasmAudioBuf = new Int16Array(Module.HEAPU8.buffer).subarray(ptr / 2, ptr / 2 + 2048)
+			this.wasmAudioBuf = new Int16Array(Module.HEAPU8.buffer).subarray(ptr / 2, ptr / 2 + 2048);
 		}
 		var tail = (this.audioFifoHead + this.audioFifoCnt) % this.AUDIO_FIFO_MAXLEN;
 		if (this.audioFifoCnt + frames >= this.AUDIO_FIFO_MAXLEN) {
@@ -699,8 +699,8 @@ Module.DATA = new class {
 
 		if (this.stopMusic) {
 			for (var i = 0; i < this.AUDIO_BLOCK_SIZE; i++) {
-				this.audioData0[i] = 0
-				this.audioData1[i] = 0
+				this.audioData0[i] = 0;
+				this.audioData1[i] = 0;
 			}
 
 			return
@@ -718,38 +718,26 @@ Module.DATA = new class {
 			this.audioData0[i] = this.audioFifo0[this.audioFifoHead];
 			this.audioData1[i] = this.audioFifo1[this.audioFifoHead];
 			this.audioFifoHead = (this.audioFifoHead + 1) % this.AUDIO_FIFO_MAXLEN;
-			this.audioFifoCnt--
+			this.audioFifoCnt--;
 		}
 		this.frames =frames;
 		this.copySize = parseInt(copySize);
 	}
 	Img(ptr) {
 		this.picptr = ptr;
-		/*
-		let data = {
-			"code": "sendStatus",
-			"pic": this.GETU8(new Uint8ClampedArray(Module.HEAPU8.buffer).subarray(ptr, ptr + 240 * 160 * 4))
-		};
-		postMessage(data, [data.pic.buffer]);
-		data = null;
-		*/
-		//this.ImageData = new ImageData(new Uint8ClampedArray(Module.HEAPU8.buffer).subarray(ptr, ptr + 240 * 160 * 4), 240, 160);
 	}
 	FrameCheck() {
-		let state = this.ASM_UpSavBuf()
+		let state = this.ASM_UpSavBuf();
 		//console.log(state)
 		if ((this.lastCheckedSaveState == 1) && (state == 0)) {
 			//,data:this.wasmSaveBuf
 			this.SAVE_SRM();
-			postMessage({
-				'code': 'sendSavData'
-			});
 		}
-		this.lastCheckedSaveState = state
+		this.lastCheckedSaveState = state;
 	}
 	FrameFuc() {
 		Module["asm"]["k"](this.VK);
-		
+		//发送图像声音
 		let data = {
 			"code": "sendStatus",
 			"pic": this.GETU8(new Uint8ClampedArray(Module.HEAPU8.buffer).subarray(this.picptr, this.picptr + 240 * 160 * 4))
@@ -902,9 +890,7 @@ Module.DATA = new class {
 	}
 	SAVE_SRM(){
 		this.MSG('存档中！');
-		this.setDB(this.GetSrmName(),new Uint8Array(this.wasmSaveBuf)).then(result=>{
-			this.MSG('杰克已记录！！',result);
-		});
+		this.setDB(this.GetSrmName(),new Uint8Array(this.wasmSaveBuf));
 	}
 	LOADSAVE(result,SrmName) {
 		let loadSrm = (data) => {
