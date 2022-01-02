@@ -33,12 +33,17 @@
 
         .gba-body {
             width: 100%;
-            max-width: 600px;
+            max-width: 900px;
             margin: 0px auto;
             text-align: center;
             background-color: #000;
             position: relative;
             z-index: 100;
+            user-select: none;
+            user-zoom: none;
+            -moz-user-select: none;
+            -webkit-user-drag: none;
+            -webkit-user-select: none;
         }
 
         .gba-pic {
@@ -60,10 +65,15 @@
             top: 0px;
             left: 0px;
             overflow: auto;
+            overflow-x: hidden;
             width: 100%;
             height: 100%;
             background-color: #ffffff4d;
             z-index: 103;
+            user-select: auto;
+            -moz-user-select: auto;
+            -webkit-user-drag: none;
+            -webkit-user-select: auto;
         }
 
         .gba-list-file,
@@ -73,7 +83,7 @@
             list-style: auto;
             font-size: 16px;
             margin: 5px;
-            padding: 0px;
+            padding: 10px;
             background-color: #ffffffdc;
             word-break: break-all;
         }
@@ -101,11 +111,11 @@
 
         .gba-msg {
             width: 300px;
-            height: 100px;
+            height: 80px;
             margin: auto;
             right: 0;
             bottom: 0;
-            background-color: #ffffffd9;
+            background-color: #ffffff70;
             display: block;
         }
 

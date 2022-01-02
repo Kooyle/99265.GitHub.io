@@ -1,16 +1,21 @@
-if(typeof NengeApp == 'undefined')window.NengeApp = window.NengeApp||{MOUDULE:{}};
-NengeApp.GBA = new class {
+if (typeof NengeApp == 'undefined') window.NengeApp = window.NengeApp || {
+    MOUDULE: {}
+};
+window.NengeApp.GBA = new class {
     SetWorker() {
-        let JS = NengeApp.FILE&&NengeApp.FILE['gba.zip']?URL.createObjectURL(new Blob([NengeApp.FILE['gba.zip']['a.out.js']])):"a.out.js",
+        let JS = NengeApp.FILE && NengeApp.FILE['gba.zip'] ? URL.createObjectURL(new Blob([NengeApp.FILE['gba.zip']['a.out.js']])) : "a.out.js",
             STATUS_WORKER = {
                 'needwasm': (e) => {
-                    let sendwasm = (b)=>{
-                        this.worker.postMessage({'code': 'wasm','data': new Uint8Array(b)});
-                        b=null;
+                    let sendwasm = (b) => {
+                        this.worker.postMessage({
+                            'code': 'wasm',
+                            'data': new Uint8Array(b)
+                        });
+                        b = null;
                     };
-                    if(NengeApp.FILE&&NengeApp.FILE['gba.zip']){
+                    if (NengeApp.FILE && NengeApp.FILE['gba.zip']) {
                         return sendwasm(NengeApp.FILE['gba.zip']['a.out.wasm']);
-                    }else fetch('a.out.wasm').then(a => a.arrayBuffer()).then(buf => {
+                    } else fetch('a.out.wasm').then(a => a.arrayBuffer()).then(buf => {
                         sendwasm(buf);
                     });
                 },
@@ -20,9 +25,10 @@ NengeApp.GBA = new class {
                 'sendStatus': result => {
                     if (result.pic && this.pic) {
                         let pic = new ImageData(new Uint8ClampedArray(result.pic), 240, 160);
-                        result.pic=null;
+                        result.pic = null;
                         this.pic.putImageData(pic, 0, 0);
-                    }if (result.sound) {
+                    }
+                    if (result.sound) {
                         if (this.MUSIC) {
                             this.MUSIC.setBuf(result.sound);
                         }
@@ -30,8 +36,8 @@ NengeApp.GBA = new class {
 
                 },
                 'msg': result => {
+                    this.Status = result.status;
                     this.SetMsg(result.message);
-                    if (result.other == 'running' || result.other == 'runing') this.Status = 'ok';
 
                 },
                 "showList": result => {
@@ -64,20 +70,20 @@ NengeApp.GBA = new class {
             }
         }, false);
         worker.onerror = (e) => {
-                console.log(e.message, '\nline:' + e.lineno);
-                this.MSG(e.message,true);
-                worker.terminate();
-            };
-            ["onunload ", "onbeforeunload "].forEach(val => {
-                window.addEventListener(val, () => {
-                    clearTimeout(this.worker_time);
-                    this.worker_time = setTimeout(() => {
-                        worker.terminate();
-                    }, 1);
-                }, {
-                    passive: false
-                });
+            console.log(e.message, '\nline:' + e.lineno);
+            this.MSG(e.message, true);
+            worker.terminate();
+        };
+        ["onunload ", "onbeforeunload "].forEach(val => {
+            window.addEventListener(val, () => {
+                clearTimeout(this.worker_time);
+                this.worker_time = setTimeout(() => {
+                    worker.terminate();
+                }, 1);
+            }, {
+                passive: false
             });
+        });
         this.worker = worker;
     }
     Upload() {
@@ -114,7 +120,7 @@ NengeApp.GBA = new class {
         }
     }
     constructor(element) {
-        if(element)this.body=element;
+        if (element) this.body = element;
         let FileAction = (elm) => {
             let action = elm.getAttribute('data-action'),
                 li = elm.parentNode.parentNode;
@@ -139,7 +145,7 @@ NengeApp.GBA = new class {
                 });
             },
             "reset": () => {
-                if (this.Status == 'ok') this.worker.postMessage({
+                if (this.Status) this.worker.postMessage({
                     code: 'sendStatus',
                     action: 'reset'
                 });
@@ -192,10 +198,10 @@ NengeApp.GBA = new class {
         return this.body.querySelector(str);
     }
     initModule() {
-        if(!this.body){
-            this.body = document.querySelector('.gba-body')||document.querySelector('#gba')||document.body;
+        if (!this.body) {
+            this.body = document.querySelector('.gba-body') || document.querySelector('#gba') || document.body;
         }
-        if(!document.querySelector('.gba-body')){
+        if (!document.querySelector('.gba-body')) {
             this.body.innerHTML = this.OutPutHTML();
         }
         this.pic = this.Q('.gba-pic').getContext('2d');
@@ -213,6 +219,7 @@ NengeApp.GBA = new class {
         let GamePadTimer,
             GAMEPAD_STATUS = {},
             GAME_PAD = () => {
+                if(!this.Status) return;
                 let GamePads = navigator.getGamepads(),
                     keyState = new Array(10).fill(0),
                     BtnMap = this.KeyGamePad;
@@ -221,26 +228,26 @@ NengeApp.GBA = new class {
                     if (Gamepad && Gamepad.connected) {
                         let AXE = Gamepad.axes,
                             Buttons = Gamepad.buttons;
-                            //connected = Gamepad.connected,
-                            //GamepadName = Gamepad.id;
-                            for(let axeid = 0; axeid < AXE.length; axeid++) {
-                                let axe = parseFloat(AXE[axeid]),
-                                    axeS = 0;
-                                //1 左摇杆 左右 2 上下 3右摇杆 左右 上下
-                                //key 4右 5左  6上 7下
-                                if (axe < -0.5) axeS += 1; //1 or0
-                                if (axe > 0.5) axeS += 2; //2 or 0
-                                //axeS1左 上 axeS2右 下
-                                //axeid%2 0左右
-                                //axeid%2 1上下
-                                if (axeS != 0) {
-                                    if (axeid % 2 == 0) {
-                                        keyState[6 - axeS] = 1;
-                                    } else if (axeid % 2 == 1) {
-                                        keyState[5 + axeS] = 1
-                                    }
+                        //connected = Gamepad.connected,
+                        //GamepadName = Gamepad.id;
+                        for (let axeid = 0; axeid < AXE.length; axeid++) {
+                            let axe = parseFloat(AXE[axeid]),
+                                axeS = 0;
+                            //1 左摇杆 左右 2 上下 3右摇杆 左右 上下
+                            //key 4右 5左  6上 7下
+                            if (axe < -0.5) axeS += 1; //1 or0
+                            if (axe > 0.5) axeS += 2; //2 or 0
+                            //axeS1左 上 axeS2右 下
+                            //axeid%2 0左右
+                            //axeid%2 1上下
+                            if (axeS != 0) {
+                                if (axeid % 2 == 0) {
+                                    keyState[6 - axeS] = 1;
+                                } else if (axeid % 2 == 1) {
+                                    keyState[5 + axeS] = 1
                                 }
                             }
+                        }
                         for (let btnid = 0; btnid < Buttons.length; btnid++) {
                             //12上 13下 14 左 15右
                             //L1/4  R1/5  L2/6 L3/7   L/10 R11
@@ -266,7 +273,7 @@ NengeApp.GBA = new class {
                 }
                 if (keyState.join(',') != this.keyState.join(',')) {
                     this.keyState = keyState;
-                    if (this.Status == 'ok') this.worker.postMessage({
+                    this.worker.postMessage({
                         code: 'sendStatus',
                         VK: this.VK
                     });
@@ -275,12 +282,12 @@ NengeApp.GBA = new class {
         window.addEventListener("gamepadconnected", e => {
             console.log("连接手柄", e.gamepad.id);
             this.Q('.gba-list-pad-txt').value = JSON.stringify(this.KeyGamePad, null, "\t");
-            this.Q('.gba-list-pad-txt').onchange = ()=>{
+            this.Q('.gba-list-pad-txt').onchange = () => {
                 let json = this.Q('.gba-list-pad-txt').value;
-                try{
+                try {
                     this.KeyGamePad = JSON.parse(json);
-                }catch(e){
-                    alert('数据有问题！',e);
+                } catch (e) {
+                    alert('数据有问题！', e);
                 }
             }
             clearInterval(GamePadTimer);
@@ -318,7 +325,7 @@ NengeApp.GBA = new class {
                         }
                     }
                 }
-                if (this.Status != 'ok') return;
+                if (!this.Status) return;
                 let index = this.Keyboard.indexOf(e.code);
                 e.preventDefault();
                 e.stopPropagation();
@@ -341,7 +348,7 @@ NengeApp.GBA = new class {
         EventMap.forEach(val => document.addEventListener(val, KeyboardEvent, {
             passive: false
         }));
-        this.body.addEventListener('click', (e) => {
+        this.body.addEventListener('mouseup', (e) => {
             let elm = e.target,
                 action = elm.getAttribute('data-action');
             if (action) {
@@ -374,57 +381,58 @@ NengeApp.GBA = new class {
     }
     handToch() {
         let handleTouch = (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-                this.keyState = new Array(10).fill(0);
+                let keyState = new Array(10).fill(0),
+                    elm = event.target;
+                if (elm) {
+                    let key = elm.getAttribute('data-k'),
+                        action = elm.getAttribute('data-action');
+                    if (key || action) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        if (event.type == 'touchend') {
+                                console.log(this.Status);
+                                if(this.ACTION_MAP[action])return this.ACTION_MAP[action](elm);
+                                if(this.ACTION_MAP[key])return this.ACTION_MAP[key]();
+                        }
+                    }
+                }
                 if (event.touches && event.touches.length > 0) {
+                    if(!this.Status) return;
                     for (var i = 0; i < event.touches.length; i++) {
                         var t = event.touches[i];
                         var dom = document.elementFromPoint(t.clientX, t.clientY);
                         if (dom) {
                             var k = dom.getAttribute('data-k');
                             if (!k) return
-                            let index = this.keyMap.indexOf(k);;
+                            let index = this.keyMap.indexOf(k);
                             if (index != -1) {
-                                this.keyState[index] = 1;
+                                keyState[index] = 1;
                             } else {
                                 if (k == 'ul') {
-                                    this.keyState[5] = 1;
-                                    this.keyState[6] = 1;
+                                    keyState[5] = 1;
+                                    keyState[6] = 1;
                                 } else if (k == 'ur') {
-                                    this.keyState[4] = 1;
-                                    this.keyState[6] = 1;
+                                    keyState[4] = 1;
+                                    keyState[6] = 1;
                                 } else if (k == 'dl') {
-                                    this.keyState[5] = 1;
-                                    this.keyState[7] = 1;
+                                    keyState[5] = 1;
+                                    keyState[7] = 1;
                                 } else if (k == 'dr') {
-                                    this.keyState[4] = 1;
-                                    this.keyState[7] = 1;
+                                    keyState[4] = 1;
+                                    keyState[7] = 1;
                                 }
                             }
                         }
                     }
-                } else {
-                    //电脑
-                    if (event.type == 'touchend') {
-                        let dom = event.target,
-                            k = dom.getAttribute('data-k'),
-                            action = dom.getAttribute('data-action');
-                        if (action) {
-                            this.ACTION_MAP[action](dom);
-                        } else {
-                            if ((k == 'turbo' || k == 'reset') && event.type == 'touchend') {
-                                this.ACTION_MAP[k]();
-                            }
-
-                        }
-                    }
                 }
-                if (this.Status == 'ok') this.worker.postMessage({
-                    code: 'sendStatus',
-                    VK: this.VK
-                });
-                return false;
+                if (keyState.join(',') != this.keyState.join(',')) {
+                    this.keyState = keyState;
+                    this.worker.postMessage({
+                        code: 'sendStatus',
+                        VK: this.VK
+                    });
+                    return false;
+                }
             }
             ['touchstart', 'touchmove', 'touchcancel', 'touchend'].forEach(
                 val => window.addEventListener(val, handleTouch, {
@@ -552,6 +560,7 @@ NengeApp.GBA = new class {
             this.audioCtx = audioCtx;
         }
     }
+    Status = false;
     keyMap = ["a", "b", "select", "start", "right", "left", 'up', 'down', 'r', 'l'];
     keyState = new Array(10).fill(0);
     KeyGamePad = {
@@ -596,7 +605,7 @@ NengeApp.GBA = new class {
         "KeyT",
         "KeyI",
     ];
-    OutPutHTML(){
+    OutPutHTML() {
         return '<style> body{ padding: 0px; margin: 0px;} .gba-body{ width: 100%; max-width: 600px; margin: 0px auto; text-align: center; background-color: #000; position: relative; z-index: 10000;} .gba-pic{ max-height: 100vh; max-width: 100vw; width: 100%; margin: 0px auto; z-index: 10001;} .gba-ctrl{ display: none; z-index: 10002;} .gba-list, .gba-msg{ position: absolute; top: 0px; left: 0px; overflow: auto; width: 100%; height: 100%; background-color: #ffffff4d; z-index: 10003;} .gba-list-file, .gba-list-tips, .gba-list-ctrl, .gba-list-pad{ list-style: auto; font-size: 16px; margin: 5px; padding: 0px; background-color: #ffffffdc; word-break: break-all;} .gba-list li{ margin: 5px 0px; padding: 5px 0px; border-bottom: 2px #3fadfb solid;} .gba-list-file li>div{ display: flex; justify-content: space-around; align-items: center;} .gba-list input[data-action]{ background-image: linear-gradient(180deg, #3fadfb, #2196f3b5, #2196f3); border: 1px solid; font-size: 18px; border-radius: 5px; padding: 2px; margin: 15px 0px;} .gba-msg{ width: 300px; height: 100px; margin: auto; right: 0; bottom: 0; background-color: #ffffffd9; display: block;} @media screen and (max-width:600px){ .gba-ctrl{ display: block;} .gba-body{ width: 100vw; height: 100vh; overflow: hidden; position: absolute; top: 0px; left: 0px;} .gba-action{ position: absolute; right: 0px; bottom: 0px;}} @media screen and (max-height:600px){ .gba-ctrl{ display: block;} .gba-body{ width: 100vw; height: 100vh; overflow: hidden; max-width: none; position: absolute; top: 0px; left: 0px;} .gba-action{ position: absolute; right: 0px; bottom: 0px;} .gba-pic{ height: 100vh; width: auto;}} .vk{ position: fixed; z-index: 10002; background-color: #ffffff4d; text-align: center; overflow: hidden; font-size: 4rem;} .vk-round{ text-align: center; vertical-align: middle; border-radius: 50%; display: inline-block;} .vk{ color: rgba(0, 0, 0, 0.2); background-color: rgba(255, 255, 255, 0.25); position: absolute; z-index: 1; text-align: center; vertical-align: middle; display: inline-block;} .vk-hide{ background-color: transparent !important} .vk-touched{ background-color: rgba(255, 255, 255, 0.75) !important}</style><div class="gba-body"><canvas class="gba-pic" width="240" height="160"></canvas><div class="gba-action"><input type="button" value="加载zip/gba/srm" data-action="upload"><input type="button" value="查看记录" data-action="showList"><input type="button" value="打开音乐" data-action="music"></div><div class="gba-list" style="display: none;"><h3 data-action="close-list">缓存文件列表 点击这里关闭</h3><ul class="gba-list-file"></ul><div class="gba-list-tips">Worker 修改版，原作：<a target="_blank" href="https://github.com/44670/vba-next-wasm">https://github.com/44670/vba-next-wasm</a><br>启用RTC方法，运行蓝宝石/绿宝石，然后运行中切换回你的游戏，如火红改版。<br>RTC启用成功！ </div><div class="gba-list-ctrl"></div><div class="gba-list-pad"><h3>手柄参数,基于我的廉价PS4手柄（百元不到）</h3>12上 13下 14左 15右<br>L1/4 R1/5 R2/6 L2/7 R/10 L/11<br>//0 X 1 O 2 ▲ 3 <br>SHARE 8 option 9 PS 16 触摸板按下17<br>模拟器键值：<br>a=&gt;0,b=&gt;1,select=&gt;2,start=&gt;3,right=&gt;4,left=&gt;5,up=&gt;6,down=&gt;7,r=&gt;8,l=&gt;9 <textarea class="gba-list-pad-txt" style="width: 100%;height: 300px;"></textarea></div></div><div class="gba-msg"></div><div class="gba-ctrl"><div class="vk-rect vk" data-k="reset">重启</div><div class="vk-rect vk" data-k="turbo">加速</div><div class="vk-rect vk" data-k="l">L</div><div class="vk-rect vk" data-k="r">R</div><div class="vk-round vk" data-k="a">A</div><div class="vk-round vk" data-k="b">B</div><div class="vk-rect vk" data-k="select">Select</div><div class="vk-rect vk" data-k="start">Start</div><div class=" vk" data-k="left">←</div><div class=" vk" data-k="right">→</div><div class=" vk" data-k="up">↑</div><div class=" vk" data-k="down">↓</div><div class=" vk vk-hide" data-k="ul"></div><div class=" vk vk-hide" data-k="ur"></div><div class=" vk vk-hide" data-k="dl"></div><div class=" vk vk-hide" data-k="dr"></div></div></div>';
     }
 };
