@@ -131,7 +131,6 @@ window.NengeApp.GBA = new class {
     constructor(element) {
         if (element) this.body = element;
         let FileAction = (e) => {
-            alert(e);
             let elm = e.target,
                 action = elm.getAttribute('data-action'),
                 li = elm.parentNode.parentNode;
@@ -443,7 +442,7 @@ window.NengeApp.GBA = new class {
         return ret;
 
     }
-    
+
     handToch() {
         let handleTouch = (event) => {
                 let keyState = new Array(10).fill(0),
@@ -505,7 +504,7 @@ window.NengeApp.GBA = new class {
                 }
             }
             ['touchstart', 'touchmove', 'touchcancel', 'touchend'].forEach(
-                val => window.addEventListener(val, handleTouch, {
+                val => document.addEventListener(val, handleTouch, {
                     passive: false
                 })
             );
