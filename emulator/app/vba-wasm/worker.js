@@ -53,7 +53,7 @@ window.NengeApp.GBA = new class {
                                 fileName = file.replace('game--', '游戏文件：').replace('srm--', '存档文件：');
                             if (file == 'gba.wasm') fileName = "模拟器WASM 编译文件";
                             else if (file == 'lastRunGame') fileName = "储存最后一次运行的键值：" + file;
-                            HTML += '<li data-file="' + file + '">' + fileName + '<div><input type="button" value="删除" data-action="del"><input type="button" value="读取" data-action="read"><input type="button" value="下载" data-action="down"></li></div>';
+                            HTML += '<li data-file="' + file + '">' + fileName + '<div><input type="button" value="删除" data-action="Filedel"><input type="button" value="读取" data-action="Fileread"><input type="button" value="下载" data-action="Filedown"></li></div>';
                         }
                     } else {
                         HTML = '<HR>没找到数据啊!<HR>';
@@ -173,9 +173,9 @@ window.NengeApp.GBA = new class {
                     code: 'showList'
                 });
             },
-            'down': a => FileAction(a),
-            'del': a => FileAction(a),
-            'read': a => FileAction(a),
+            'Filedown': a => FileAction(a),
+            'Filedel': a => FileAction(a),
+            'Fileread': a => FileAction(a),
             'close-list': a => {
                 this.Q('.gba-list').style.display = 'none';
             },
