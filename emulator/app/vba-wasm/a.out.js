@@ -817,7 +817,7 @@ Module.DATA = new class {
 			},
 			"action":result=>{
 				let action = result.action,file=result.file;
-				if(action=='read'){
+				if(action=='Fileread'){
 					if(file == 'lastRunGame') return this.MSG('这不是文件');
 					else if(file == 'gba.wasm') return this.MSG('这不是文件');
 					else if(file.indexOf('game--') ==0) this.LOADGAME(null,file);
@@ -839,9 +839,9 @@ Module.DATA = new class {
 						});
 
 					}
-				}else if(action=='del'){
+				}else if(action=='Filedel'){
 					this.removeDB(file)
-				}else if(action=='down'){
+				}else if(action=='Filedown'){
 					if(file == 'lastRunGame') return this.MSG('这不是文件');
 					this.getDB(file).then(data=>{
 						postMessage({code:'sendFile',data,file});
