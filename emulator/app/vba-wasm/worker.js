@@ -1,9 +1,13 @@
-if (typeof NengeApp == 'undefined') window.NengeApp = window.NengeApp || {
-    MOUDULE: {}
-};
+if (typeof NengeApp == 'undefined') {
+    window.NengeApp = window.NengeApp || {
+        MOUDULE: {}
+    };
+}
 window.NengeApp.GBA = new class {
     SetWorker() {
-        let JS = NengeApp.FILE && NengeApp.FILE['gba.zip'] ? URL.createObjectURL(new Blob([NengeApp.FILE['gba.zip']['a.out.js']])) : "a.out.js",
+        let FILE = NengeApp.FILE,
+            GBAFile = FILE && FILE['gba.zip'] || null,
+            JS = GBAFile ? URL.createObjectURL(new Blob([GBAFile['a.out.js']])) : "a.out.js",
             STATUS_WORKER = {
                 'needwasm': (e) => {
                     let sendwasm = (b) => {
@@ -13,8 +17,8 @@ window.NengeApp.GBA = new class {
                         });
                         b = null;
                     };
-                    if (NengeApp.FILE && NengeApp.FILE['gba.zip']) {
-                        return sendwasm(NengeApp.FILE['gba.zip']['a.out.wasm']);
+                    if (GBAFile) {
+                        return sendwasm(GBAFile['a.out.wasm']);
                     } else fetch('a.out.wasm').then(a => a.arrayBuffer()).then(buf => {
                         sendwasm(buf);
                     });
@@ -46,11 +50,11 @@ window.NengeApp.GBA = new class {
                         let file = result.data[i],
                             fileName = file.replace('game--', '游戏文件：').replace('srm--', '存档文件：');
                         if (file == 'gba.wasm') fileName = "模拟器WASM 编译文件";
-                        else if (file == 'lastRunGame') fileName = "最后一次运行游戏名：" + file;
+                        else if (file == 'lastRunGame') fileName = "储存最后一次运行的键值：" + file;
                         HTML += '<li data-file="' + file + '">' + fileName + '<div><input type="button" value="删除" data-action="del"><input type="button" value="读取" data-action="read"><input type="button" value="下载" data-action="down"></li></div>';
                     }
                     this.Q('.gba-list-file').innerHTML = HTML;
-                    this.Q('.gba-list').style.display = '';
+                    this.ACTION_MAP['show-list']();
                 },
                 "sendFile": result => {
                     if (result.data) {
@@ -125,7 +129,7 @@ window.NengeApp.GBA = new class {
             let action = elm.getAttribute('data-action'),
                 li = elm.parentNode.parentNode;
             let file = li.getAttribute('data-file');
-            this.Q('.gba-list').style.display = 'none';
+            this.ACTION_MAP['close-list']();
             this.worker.postMessage({
                 code: 'action',
                 action,
@@ -169,6 +173,46 @@ window.NengeApp.GBA = new class {
             'close-list': a => {
                 this.Q('.gba-list').style.display = 'none';
             },
+            'show-list': a => {
+                this.Q('.gba-list').style.display = '';
+            },
+            'SetKeyPad':()=>{
+                let padtxt = this.Q('.gba-list-pad-txt');
+                padtxt.value = JSON.stringify(this.KeyGamePad, null, "\t");
+                padtxt.onchange = () => {
+                    let json = this.Q('.gba-list-pad-txt').value;
+                    if(!json || json=="")return;
+                    try {
+                        this.KeyGamePad = JSON.parse(json);
+                    } catch (e) {
+                        this.Q('.gba-list-pad-txt').value = JSON.stringify(this.KeyGamePad, null, "\t");
+                        alert('数据有问题！', e);
+                    }
+                }
+
+            },
+            'Keygamepad': e => {
+                return e;
+            },
+            'KeyCode': e => {
+                let map = {
+                    'Escape': 'turbo',
+                    'Backspace': 'reset'
+                };
+                this.ACTION_MAP[e] && this.ACTION_MAP[e]();
+            },
+            "Keyboard": e => {
+                let elm = e.target;
+                e.preventDefault();
+                e.stopPropagation();
+                if (e.code) elm.value = e.code;
+            },
+            "resetKey": e => {
+                localStorage.removeItem('KeyboardTemp');
+                this.KeyboardTemp = Array.from(this.Keyboard);
+                this.ACTION_MAP['showKey']();
+                this.ACTION_MAP['close-list']();
+            },
             "saveKey": e => {
                 let index = 0;
                 let KeyMap = new Array(18).fill(0);
@@ -185,7 +229,19 @@ window.NengeApp.GBA = new class {
                 console.log(KeyMap);
                 this.KeyboardTemp = KeyMap;
                 localStorage.setItem('KeyboardTemp', KeyMap.join(','));
-            }
+                this.ACTION_MAP['close-list']();
+            },
+            "showKey": e => {
+
+                let HTML = '',
+                    Keyboard_html = index => {
+                        return `<td><input type="text" value="${this.KeyboardTemp[index]}" data-action="Keyboard"></td>`;
+                    };
+                for (let index = 0; index < this.keyMap.length; index++) {
+                    HTML += '<tr><td>' + this.keyMap[index % 10].toLocaleUpperCase() + '</td>' + Keyboard_html(index) + '' + Keyboard_html(index + 10) + '</tr>';
+                }
+                this.Q('.gba-list-ctrl').innerHTML = '<h3>键位 ESC加速 Backspace重启</h3><table border="1" width="100%"><tr><th>键位</th><th>键值</th><th>键值</th></tr>' + HTML + '</table><input type="button" value="保存键值" data-action="saveKey"> | | <input type="button" value="恢复默认" data-action="resetKey"></input>';
+            },
         };
         let func = () => {
             this.initModule();
@@ -203,23 +259,32 @@ window.NengeApp.GBA = new class {
         }
         if (!document.querySelector('.gba-body')) {
             this.body.innerHTML = this.OutPutHTML();
+            this.body = document.querySelector('.gba-body');
         }
-        this.pic = this.Q('.gba-pic').getContext('2d');
+        let canvas = this.Q('.gba-pic');
+        this.pic = canvas.getContext('2d');
         if ("ontouchend" in document) {
             //mobile
+            this.unselect = [
+                canvas,
+                this.body,
+                this.Q('.gba-action'),
+                this.Q('.gba-ctrl'),
+                this.Q('.gba-msg'),
+            ];
             this.handToch();
         } else {
             this.KeyboardEvent();
         }
         this.SetWorker();
         //手柄
-        this.GAME_PAD();
+        this.GAMEPAD_EVENT();
     }
-    GAME_PAD() {
+    GAMEPAD_EVENT() {
         let GamePadTimer,
             GAMEPAD_STATUS = {},
             GAME_PAD = () => {
-                if(!this.Status) return;
+                if (!this.Status) return;
                 let GamePads = navigator.getGamepads(),
                     keyState = new Array(10).fill(0),
                     BtnMap = this.KeyGamePad;
@@ -281,16 +346,8 @@ window.NengeApp.GBA = new class {
             };
         window.addEventListener("gamepadconnected", e => {
             console.log("连接手柄", e.gamepad.id);
-            this.Q('.gba-list-pad-txt').value = JSON.stringify(this.KeyGamePad, null, "\t");
-            this.Q('.gba-list-pad-txt').onchange = () => {
-                let json = this.Q('.gba-list-pad-txt').value;
-                try {
-                    this.KeyGamePad = JSON.parse(json);
-                } catch (e) {
-                    alert('数据有问题！', e);
-                }
-            }
             clearInterval(GamePadTimer);
+            this.ACTION_MAP['SetKeyPad']();
             GamePadTimer = setInterval(
                 () => {
                     GAME_PAD();
@@ -311,22 +368,19 @@ window.NengeApp.GBA = new class {
         });
     }
     KeyboardEvent() {
-        let KeyboardEvent = e => {
+        let SpKey = ['Escape', 'Backspace', 'Tab'],
+            KeyboardEvent = e => {
+                if (SpKey.includes(e.code)) {
+                    return this.ACTION_MAP['KeyCode'](e.code);
+                }
                 let elm = e.target;
                 if (elm) {
                     let action = elm.getAttribute('data-action');
-                    if (action) {
-                        if (action == "key") {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            elm.value = e.code;
-                            return;
-
-                        }
-                    }
+                    if (action) return this.ACTION_MAP[action] && this.ACTION_MAP[action](e);
+                    return;
                 }
                 if (!this.Status) return;
-                let index = this.Keyboard.indexOf(e.code);
+                let index = this.KeyboardTemp.indexOf(e.code);
                 e.preventDefault();
                 e.stopPropagation();
                 if (index != -1) {
@@ -354,7 +408,7 @@ window.NengeApp.GBA = new class {
             if (action) {
                 e.preventDefault();
                 e.stopPropagation();
-                this.ACTION_MAP[action](elm);
+                this.ACTION_MAP[action] && this.ACTION_MAP[action](e);
             }
             return false;
 
@@ -362,14 +416,7 @@ window.NengeApp.GBA = new class {
         }, {
             passive: false
         });
-        let HTML = '',
-            Keyboard_html = index => {
-                return `<td><input type="text" value="${this.KeyboardTemp[index]}" data-action="key"></td>`;
-            };
-        for (let index = 0; index < this.keyMap.length; index++) {
-            HTML += '<tr><td>' + this.keyMap[index % 10].toLocaleUpperCase() + '</td>' + Keyboard_html(index) + '' + Keyboard_html(index + 10) + '</tr>';
-        }
-        this.Q('.gba-list-ctrl').innerHTML = '<table><tr><th>键位</th><th>键值</th><th>键值</th></tr>' + HTML + '</table><input type="button" value="保存键值" data-action="saveKey"></input>';
+        this.ACTION_MAP['showKey']();
     }
     get VK() {
         let ret = 0;
@@ -390,14 +437,18 @@ window.NengeApp.GBA = new class {
                         event.preventDefault();
                         event.stopPropagation();
                         if (event.type == 'touchend') {
-                                console.log(this.Status);
-                                if(this.ACTION_MAP[action])return this.ACTION_MAP[action](elm);
-                                if(this.ACTION_MAP[key])return this.ACTION_MAP[key]();
+                            if (this.ACTION_MAP[action]) return this.ACTION_MAP[action](elm);
+                            if (this.ACTION_MAP[key]) return this.ACTION_MAP[key]();
                         }
+                    } else if (this.unselect.includes(elm)) {
+                        //防止拖动
+                        event.preventDefault();
+                        event.stopPropagation();
+                        return;
                     }
                 }
                 if (event.touches && event.touches.length > 0) {
-                    if(!this.Status) return;
+                    if (!this.Status) return;
                     for (var i = 0; i < event.touches.length; i++) {
                         var t = event.touches[i];
                         var dom = document.elementFromPoint(t.clientX, t.clientY);
@@ -606,6 +657,6 @@ window.NengeApp.GBA = new class {
         "KeyI",
     ];
     OutPutHTML() {
-        return '<style> body{ padding: 0px; margin: 0px;} .gba-body{ width: 100%; max-width: 600px; margin: 0px auto; text-align: center; background-color: #000; position: relative; z-index: 10000;} .gba-pic{ max-height: 100vh; max-width: 100vw; width: 100%; margin: 0px auto; z-index: 10001;} .gba-ctrl{ display: none; z-index: 10002;} .gba-list, .gba-msg{ position: absolute; top: 0px; left: 0px; overflow: auto; width: 100%; height: 100%; background-color: #ffffff4d; z-index: 10003;} .gba-list-file, .gba-list-tips, .gba-list-ctrl, .gba-list-pad{ list-style: auto; font-size: 16px; margin: 5px; padding: 0px; background-color: #ffffffdc; word-break: break-all;} .gba-list li{ margin: 5px 0px; padding: 5px 0px; border-bottom: 2px #3fadfb solid;} .gba-list-file li>div{ display: flex; justify-content: space-around; align-items: center;} .gba-list input[data-action]{ background-image: linear-gradient(180deg, #3fadfb, #2196f3b5, #2196f3); border: 1px solid; font-size: 18px; border-radius: 5px; padding: 2px; margin: 15px 0px;} .gba-msg{ width: 300px; height: 100px; margin: auto; right: 0; bottom: 0; background-color: #ffffffd9; display: block;} @media screen and (max-width:600px){ .gba-ctrl{ display: block;} .gba-body{ width: 100vw; height: 100vh; overflow: hidden; position: absolute; top: 0px; left: 0px;} .gba-action{ position: absolute; right: 0px; bottom: 0px;}} @media screen and (max-height:600px){ .gba-ctrl{ display: block;} .gba-body{ width: 100vw; height: 100vh; overflow: hidden; max-width: none; position: absolute; top: 0px; left: 0px;} .gba-action{ position: absolute; right: 0px; bottom: 0px;} .gba-pic{ height: 100vh; width: auto;}} .vk{ position: fixed; z-index: 10002; background-color: #ffffff4d; text-align: center; overflow: hidden; font-size: 4rem;} .vk-round{ text-align: center; vertical-align: middle; border-radius: 50%; display: inline-block;} .vk{ color: rgba(0, 0, 0, 0.2); background-color: rgba(255, 255, 255, 0.25); position: absolute; z-index: 1; text-align: center; vertical-align: middle; display: inline-block;} .vk-hide{ background-color: transparent !important} .vk-touched{ background-color: rgba(255, 255, 255, 0.75) !important}</style><div class="gba-body"><canvas class="gba-pic" width="240" height="160"></canvas><div class="gba-action"><input type="button" value="加载zip/gba/srm" data-action="upload"><input type="button" value="查看记录" data-action="showList"><input type="button" value="打开音乐" data-action="music"></div><div class="gba-list" style="display: none;"><h3 data-action="close-list">缓存文件列表 点击这里关闭</h3><ul class="gba-list-file"></ul><div class="gba-list-tips">Worker 修改版，原作：<a target="_blank" href="https://github.com/44670/vba-next-wasm">https://github.com/44670/vba-next-wasm</a><br>启用RTC方法，运行蓝宝石/绿宝石，然后运行中切换回你的游戏，如火红改版。<br>RTC启用成功！ </div><div class="gba-list-ctrl"></div><div class="gba-list-pad"><h3>手柄参数,基于我的廉价PS4手柄（百元不到）</h3>12上 13下 14左 15右<br>L1/4 R1/5 R2/6 L2/7 R/10 L/11<br>//0 X 1 O 2 ▲ 3 <br>SHARE 8 option 9 PS 16 触摸板按下17<br>模拟器键值：<br>a=&gt;0,b=&gt;1,select=&gt;2,start=&gt;3,right=&gt;4,left=&gt;5,up=&gt;6,down=&gt;7,r=&gt;8,l=&gt;9 <textarea class="gba-list-pad-txt" style="width: 100%;height: 300px;"></textarea></div></div><div class="gba-msg"></div><div class="gba-ctrl"><div class="vk-rect vk" data-k="reset">重启</div><div class="vk-rect vk" data-k="turbo">加速</div><div class="vk-rect vk" data-k="l">L</div><div class="vk-rect vk" data-k="r">R</div><div class="vk-round vk" data-k="a">A</div><div class="vk-round vk" data-k="b">B</div><div class="vk-rect vk" data-k="select">Select</div><div class="vk-rect vk" data-k="start">Start</div><div class=" vk" data-k="left">←</div><div class=" vk" data-k="right">→</div><div class=" vk" data-k="up">↑</div><div class=" vk" data-k="down">↓</div><div class=" vk vk-hide" data-k="ul"></div><div class=" vk vk-hide" data-k="ur"></div><div class=" vk vk-hide" data-k="dl"></div><div class=" vk vk-hide" data-k="dr"></div></div></div>';
+        return;
     }
 };
