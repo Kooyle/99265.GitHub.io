@@ -47,7 +47,7 @@ window.NengeApp.GBA = new class {
                 "showList": result => {
                     let HTML = '';
                     this.SetMsg("列表加载完毕!");
-                    if (result.data&&result.data.length>0) {
+                    if (result.data && result.data.length > 0) {
                         for (let i = 0; i < result.data.length; i++) {
                             let file = result.data[i],
                                 fileName = file.replace('game--', '游戏文件：').replace('srm--', '存档文件：');
@@ -454,8 +454,8 @@ window.NengeApp.GBA = new class {
                         event.preventDefault();
                         event.stopPropagation();
                         if (event.type == 'touchend') {
-                            if (this.ACTION_MAP[action])this.ACTION_MAP[action](event);
-                            else if (this.ACTION_MAP[key])this.ACTION_MAP[key](event);
+                            if (this.ACTION_MAP[action]) this.ACTION_MAP[action](event);
+                            else if (this.ACTION_MAP[key]) this.ACTION_MAP[key](event);
                             return;
                         }
                     } else if (this.unselect.includes(elm)) {
@@ -504,24 +504,24 @@ window.NengeApp.GBA = new class {
                 }
             }
             ['touchstart', 'touchmove', 'touchcancel', 'touchend'].forEach(
-                val => document.addEventListener(val, handleTouch, {
+                val => window.addEventListener(val, handleTouch, {
                     passive: false
                 })
             );
-        ["resize", "orientationchange"].forEach(val => {
-            window.addEventListener(val, (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                clearTimeout(this.UI_time);
-                this.UI_time = setTimeout(() => {
-                    this.adjustVKLayout();;
-                }, 1);
-                return false;
-            }, {
-                passive: false
+            ["resize", "orientationchange"].forEach(val => {
+                window.addEventListener(val, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    clearTimeout(this.UI_time);
+                    this.UI_time = setTimeout(() => {
+                        this.adjustVKLayout();;
+                    }, 1);
+                    return false;
+                }, {
+                    passive: false
+                });
             });
-        });
-        this.adjustVKLayout();
+            this.adjustVKLayout();
     }
     adjustVKLayout() {
         let gbaMaxWidth = window.innerWidth,
