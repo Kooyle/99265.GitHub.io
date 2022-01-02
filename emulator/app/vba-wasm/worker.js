@@ -46,12 +46,17 @@ window.NengeApp.GBA = new class {
                 },
                 "showList": result => {
                     let HTML = '';
-                    for (let i = 0; i < result.data.length; i++) {
-                        let file = result.data[i],
-                            fileName = file.replace('game--', '游戏文件：').replace('srm--', '存档文件：');
-                        if (file == 'gba.wasm') fileName = "模拟器WASM 编译文件";
-                        else if (file == 'lastRunGame') fileName = "储存最后一次运行的键值：" + file;
-                        HTML += '<li data-file="' + file + '">' + fileName + '<div><input type="button" value="删除" data-action="del"><input type="button" value="读取" data-action="read"><input type="button" value="下载" data-action="down"></li></div>';
+                    this.SetMsg("列表加载完毕!");
+                    if (result.data&&result.data.length>0) {
+                        for (let i = 0; i < result.data.length; i++) {
+                            let file = result.data[i],
+                                fileName = file.replace('game--', '游戏文件：').replace('srm--', '存档文件：');
+                            if (file == 'gba.wasm') fileName = "模拟器WASM 编译文件";
+                            else if (file == 'lastRunGame') fileName = "储存最后一次运行的键值：" + file;
+                            HTML += '<li data-file="' + file + '">' + fileName + '<div><input type="button" value="删除" data-action="del"><input type="button" value="读取" data-action="read"><input type="button" value="下载" data-action="down"></li></div>';
+                        }
+                    } else {
+                        HTML = '<HR>没找到数据啊!<HR>';
                     }
                     this.Q('.gba-list-file').innerHTML = HTML;
                     this.ACTION_MAP['show-list']();
@@ -75,7 +80,7 @@ window.NengeApp.GBA = new class {
         }, false);
         worker.onerror = (e) => {
             console.log(e.message, '\nline:' + e.lineno);
-            this.MSG(e.message, true);
+            this.MSG('发生错误');
             worker.terminate();
         };
         ["onunload ", "onbeforeunload "].forEach(val => {
@@ -125,8 +130,9 @@ window.NengeApp.GBA = new class {
     }
     constructor(element) {
         if (element) this.body = element;
-        let FileAction = (elm) => {
-            let action = elm.getAttribute('data-action'),
+        let FileAction = (e) => {
+            let elm = e.target,
+                action = elm.getAttribute('data-action'),
                 li = elm.parentNode.parentNode;
             let file = li.getAttribute('data-file');
             this.ACTION_MAP['close-list']();
@@ -176,12 +182,12 @@ window.NengeApp.GBA = new class {
             'show-list': a => {
                 this.Q('.gba-list').style.display = '';
             },
-            'SetKeyPad':()=>{
+            'SetKeyPad': () => {
                 let padtxt = this.Q('.gba-list-pad-txt');
                 padtxt.value = JSON.stringify(this.KeyGamePad, null, "\t");
                 padtxt.onchange = () => {
                     let json = this.Q('.gba-list-pad-txt').value;
-                    if(!json || json=="")return;
+                    if (!json || json == "") return;
                     try {
                         this.KeyGamePad = JSON.parse(json);
                     } catch (e) {
@@ -242,6 +248,16 @@ window.NengeApp.GBA = new class {
                 }
                 this.Q('.gba-list-ctrl').innerHTML = '<h3>键位 ESC加速 Backspace重启</h3><table border="1" width="100%"><tr><th>键位</th><th>键值</th><th>键值</th></tr>' + HTML + '</table><input type="button" value="保存键值" data-action="saveKey"> | | <input type="button" value="恢复默认" data-action="resetKey"></input>';
             },
+            "changeDB": (e) => {
+                let elm = e.target;
+                this.worker.postMessage({
+                    code: 'changeDB',
+                    data: elm.value
+                });
+                this.ACTION_MAP['close-list']();
+                this.SetMsg('正在切换数据库,请稍等!<br>不要进行任何其他操作!', true);
+                console.log(elm);
+            }
         };
         let func = () => {
             this.initModule();

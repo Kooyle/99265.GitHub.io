@@ -489,6 +489,7 @@ function _localtime_r(time, tmPtr) {
 }
 
 function _localtime(time) {
+	console.log(this);
 	return _localtime_r(time, ___tm_current)
 }
 
@@ -736,7 +737,7 @@ Module.DATA = new class {
 		this.lastCheckedSaveState = state;
 	}
 	FrameFuc() {
-		Module["asm"]["k"](this.VK);
+		this.ASM_Frame(this.VK);
 		//发送图像声音
 		let data = {
 			"code": "sendStatus",
@@ -794,12 +795,12 @@ Module.DATA = new class {
 			'sendStatus':(result)=>{
 				let action = result.action;
 				if(action){
-					if(action=='reset')Module.DATA.ASM_ReSetCpu();
-					else if(action=='turbo')Module.DATA.OpenTurbo(result.type);
-					else if(action=='music')Module.DATA.OpenMusic();
-				}if(Module.DATA){
+					if(action=='reset')this.ASM_RESET();
+					else if(action=='turbo')this.OpenTurbo(result.type);
+					else if(action=='music')this.OpenMusic();
+				}if(this){
 					if(typeof result.VK != 'undefined'){
-						Module.DATA.VK = result.VK;
+						this.VK = result.VK;
 					}
 				}
 			},
@@ -818,9 +819,26 @@ Module.DATA = new class {
 				let action = result.action,file=result.file;
 				if(action=='read'){
 					if(file == 'lastRunGame') return this.MSG('这不是文件');
-					if(file == 'gba.wasm') return this.MSG('这不是文件');
-					if(file.indexOf('game--') ==0) this.LOADGAME(null,file);
-					if(file.indexOf('srm--') ==0) this.LOADSAVE(null,file);
+					else if(file == 'gba.wasm') return this.MSG('这不是文件');
+					else if(file.indexOf('game--') ==0) this.LOADGAME(null,file);
+					else if(file.indexOf('srm--') ==0) this.LOADSAVE(null,file);
+					else if(file.indexOf('game-') ==0){
+						this.getDB(file).then(data=>{
+							if(data){
+								this.removeDB(file);
+								this.LOADGAME(data,file.replace('game-',''));
+							}
+						});
+
+					}else if(file.indexOf('save-') ==0){
+						this.getDB(file).then(data=>{
+							if(data){
+								this.removeDB(file);
+								this.LOADSAVE(data,file.replace('save-',''));
+							}
+						});
+
+					}
 				}else if(action=='del'){
 					this.removeDB(file)
 				}else if(action=='down'){
@@ -829,12 +847,29 @@ Module.DATA = new class {
 						postMessage({code:'sendFile',data,file});
 					});
 				}
+			},
+			"changeDB":result=>{
+				let DB = result.data;
+				if(DB=='DB1'){
+					this.DB = localForage;
+				}else if(DB=='DB2'){
+					this.DB = localForage.createInstance({
+						'name': 'NengeApp',
+						'storeName': "VBA-WASM"
+					});
+				}else if(DB=='DB3'){
+					this.DB = localForage.createInstance({
+						'name': 'NengeNet',
+						'storeName': "VBA-WASM"
+					});
+				}
+				this.WORKER_STATUS["showList"]();
 			}
 		};
 	}
 	Module_READY() {
-		this.romBuffer = Module._getBuffer(1);
-		this.ptr = Module._getBuffer(0);
+		this.romBuffer = this.ASM_GET_Buffer(1);
+		this.ptr = this.ASM_GET_Buffer(0);
 		this.wasmSaveBuf = Module.HEAPU8.subarray(this.ptr, this.ptr + this.wasmSaveBufLen);
 		this.Frame(60);
 		this.LOADGAME();
@@ -855,7 +890,7 @@ Module.DATA = new class {
 				'code': 'needgba'
 			});
 			Module.HEAPU8.set(Buf, this.romBuffer);
-			Module["asm"]["h"](Buf.length);
+			this.ASM_ROOM_Length(Buf.length);
 			if(this.lastGameName != this.GameName)this.setDB('lastRunGame', this.GameName);
 			Buf = null;
 			this.LOADSAVE();
@@ -902,7 +937,7 @@ Module.DATA = new class {
 			} else msg = '游戏已加载,但没找到存档!';
 			this.lastCheckedSaveState = 0;
 			this.ASM_UpSavBuf();
-			this.ASM_ReSetCpu();
+			this.ASM_RESET();
 			this.isRunning = true;
 			this.MSG(msg);
 
@@ -955,10 +990,62 @@ Module.DATA = new class {
 
 	}
 	ASM_UpSavBuf() {
+		//刷新状态
 		return Module["asm"]["i"]();
 	}
-	ASM_ReSetCpu() {
+	ASM_RESET() {
+		//重启
 		return Module["asm"]["l"]();
+	}
+	ASM_ROOM_Length(length) {
+		//rom长度
+		console.log(length);
+		return Module["asm"]["h"](length);
+	}
+	ASM_Frame(VK){
+		//控制动画 下一帧 VK是控制输入
+		return Module["asm"]["k"](VK);
+	}
+	//var DYNAMIC_BASE = 40160016,
+	//DYNAMICTOP_PTR = 34916976;
+	ASM_GET_Buffer(int){
+		//0存档数据开始位置399024 + 139264 => 538288
+		//1 游戏数据填充位置 34777088=>68331520
+		//游戏长度 33554432
+
+		return Module["asm"]["j"](int||0);
+	}
+	ASM_main() {
+		return Module["asm"]["m"]();
+	}
+	ASM_MALLOC(){
+		//返回一个随机值
+		return  Module["asm"]["g"]();
+	}
+	ASM_WASM_CALL_CTORS(){
+		//会崩溃
+		return Module["asm"]["f"]();
+	}
+	ASM_address_read(address){
+		return Module["asm"]["n"](address);
+	}
+	ASM_address_write(address,value){
+		return Module["asm"]["n"](address,value);
+	}
+	ASM_GET_tzname(){
+		return Module["asm"]["q"]();
+	}
+	ASM_GET_daylight(){
+		return Module["asm"]["r"](address,value);
+	}
+	ASM_GET_timezone(){
+		return Module["asm"]["s"](address,value);
+	}
+	ASM_GET_dynCall_v(){
+		return Module["asm"]["t"](address,value);
+	}
+	ASM_GET_dynCall_vi(){
+		return Module["asm"]["u"](address,value);
 	}
 	GetSrmName(GameName) {
 		if(!GameName){GameName = this.GameName;}
@@ -990,6 +1077,7 @@ Module.DATA = new class {
 		WebAssembly.instantiate(buf, {a:asmLibraryArg}).then(result=>{
 			buf = null;
 			Module["asm"] = result.instance.exports;
+			asmLibraryArg = null;
 			removeRunDependency("wasm-instantiate");
 		}).catch(e=>{
 			this.MSG('wasm加载失败！');
@@ -1019,13 +1107,10 @@ onmessage = function (e) {
 	}
 }
 
-Module.DATA.DB = localForage;
-/*
-Module.DATA.DB.createInstance({
+Module.DATA.DB = localForage.createInstance({
 	'name': 'NengeNet',
 	'storeName': "VBA-WASM"
 });
-*/
 Module.DATA.getDB('gba.wasm').then(data=>{
 	if(data)Module.DATA.GET_ASM(data);
 	else postMessage({'code':'needwasm'});

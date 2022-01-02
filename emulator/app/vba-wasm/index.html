@@ -7,23 +7,26 @@
 -->
 <!doctype html>
 <html lang="cmn">
+
 <head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<link rel="apple-touch-icon" href="gba2.png">
-<link rel="icon" href="gba2.png" type="image/png" />
-<!--
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="gba2.png">
+    <link rel="icon" href="gba2.png" type="image/png" />
+    <!--
 <link rel="apple-touch-icon" sizes="57x57" href="touch-icon-iphone.png" />
 <link rel="apple-touch-icon" sizes="72x72" href="touch-icon-ipad.png" />
 <link rel="apple-touch-icon" sizes="114x114" href="touch-icon-iphone4.png" />  
 <link rel="apple-touch-icon" sizes="144x144" href="apple-touch-icon-ipad3-144.png" />
--->  
-<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height">
-<title>GBA模拟器</title>
-<script src="./worker.js"></script>
+-->
+    <meta name="viewport"
+        content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height">
+    <title>GBA模拟器</title>
+    <script src="./worker.js"></script>
 </head>
+
 <body>
     <style>
         body {
@@ -82,7 +85,8 @@
         .gba-list-file,
         .gba-list-tips,
         .gba-list-ctrl,
-        .gba-list-pad {
+        .gba-list-pad,
+        .gba-db-list {
             list-style: auto;
             font-size: 16px;
             margin: 5px;
@@ -123,7 +127,8 @@
             display: block;
             z-index: 10004;
         }
-        .gba-action{
+
+        .gba-action {
             z-index: 10004;
         }
 
@@ -147,16 +152,20 @@
             vertical-align: middle;
             display: inline-block;
         }
-        .vk:hover,.vk:active{
-            color:red;
+
+        .vk:hover,
+        .vk:active {
+            color: red;
         }
 
         .vk-hide {
             background-color: transparent !important
         }
+
         .vk-touched {
             background-color: rgba(255, 255, 255, 0.75);
         }
+
         @media screen and (max-width:600px) {
             .gba-ctrl {
                 display: block;
@@ -210,6 +219,12 @@
         </div>
         <div class="gba-list" style="display: none;">
             <h3 data-action="close-list">缓存文件列表 点击这里关闭</h3>
+            <div class="gba-db-list">这是临时更换:
+                <input type="button" data-action="changeDB" value="DB1"> | 
+                <input type="button" data-action="changeDB" value="DB2"> | 
+                <input type="button" data-action="changeDB" value="DB3">
+                <div>把需要的数据下载下来,确认无误后,删除其他数据库数据.</div>
+            </div>
             <ul class="gba-list-file"></ul>
             <div class="gba-list-tips">Worker 修改版，原作：<a target="_blank"
                     href="https://github.com/44670/vba-next-wasm">https://github.com/44670/vba-next-wasm</a><br>启用RTC方法，运行蓝宝石/绿宝石，然后运行中切换回你的游戏，如火红改版。<br>RTC启用成功！
@@ -248,4 +263,5 @@
         </div>
     </div>
 </body>
+
 </html>
