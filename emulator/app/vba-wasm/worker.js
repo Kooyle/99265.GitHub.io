@@ -131,6 +131,7 @@ window.NengeApp.GBA = new class {
     constructor(element) {
         if (element) this.body = element;
         let FileAction = (e) => {
+            alert(e);
             let elm = e.target,
                 action = elm.getAttribute('data-action'),
                 li = elm.parentNode.parentNode;
@@ -453,8 +454,9 @@ window.NengeApp.GBA = new class {
                         event.preventDefault();
                         event.stopPropagation();
                         if (event.type == 'touchend') {
-                            if (this.ACTION_MAP[action]) return this.ACTION_MAP[action](elm);
-                            if (this.ACTION_MAP[key]) return this.ACTION_MAP[key]();
+                            if (this.ACTION_MAP[action])this.ACTION_MAP[action](event);
+                            else if (this.ACTION_MAP[key])this.ACTION_MAP[key](event);
+                            return;
                         }
                     } else if (this.unselect.includes(elm)) {
                         //防止拖动
