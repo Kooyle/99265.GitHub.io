@@ -443,6 +443,7 @@ window.NengeApp.GBA = new class {
         return ret;
 
     }
+    
     handToch() {
         let handleTouch = (event) => {
                 let keyState = new Array(10).fill(0),
