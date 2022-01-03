@@ -844,7 +844,12 @@ Module.DATA = new class {
 
 					}
 				} else if (action == 'Filedel') {
-					this.removeDB(file)
+					this.MSG(file+',删除后会再次返回列表!');
+					this.removeDB(file).then(
+						result=>{
+							this.WORKER_STATUS['showList']();
+						}
+					);
 				} else if (action == 'Filedown') {
 					if (file == 'lastRunGame') return this.MSG('这不是文件');
 					this.getDB(file).then(data => {
@@ -989,8 +994,13 @@ Module.DATA = new class {
 		} else if (GameName) {
 			//let REG = new RegExp("".srm$/,'i');
 			//if(REG.test(GameName)){
-			if (GameName.search(/\.srm/i) != -1) {
+			if (GameName.search(/\.srm/i) != -1 || u8.length ==139264) {
+				console.log(u8.length);
 				this.LOADSAVE(u8, GameName);
+			}else{
+				this.setDB(GameName,u8).then(e=>{
+					this.MSG(GameName+'<br>是非(游戏|存档)文件<br>但也替你保存下来了！');
+				});
 			}
 		}
 
