@@ -279,7 +279,7 @@ window.NengeApp.GBA = new class {
         }
         let canvas = this.Q('.gba-pic');
         this.pic = canvas.getContext('2d');
-        if ("ontouchend" in document) {
+        if ("ontouchstart" in document) {
             //mobile
             this.unselect = [
                 canvas,
@@ -520,6 +520,7 @@ window.NengeApp.GBA = new class {
                 passive: false
             });
         });
+        this.Q('.gba-list-ctrl').style.display='none';
         this.adjustVKLayout();
     }
     adjustVKLayout() {
@@ -536,11 +537,14 @@ window.NengeApp.GBA = new class {
                 return 'top:' + top + 'px;left:' + left + 'px;width:' + w + 'px;height:' + h + 'px;' +
                     'font-size:' + fontSize + 'px;line-height:' + h + 'px;'
             };
-        if (!isLandscape) {
+        if (!isLandscape&&gbaMaxWidth<1000) {
             offTop = Q('.gba-pic').offsetHeight + baseSize;
             if ((offTop + baseSize * 7) > gbaMaxHeight) {
                 offTop = 0;
             }
+        }else if(gbaMaxWidth>=1000){
+            offTop = (this.body.offsetHeight/2 - baseSize*4) || 0;
+
         }
 
         var vkw = baseSize * 3;

@@ -36,7 +36,6 @@
 
         .gba-body {
             width: 100%;
-            max-width: 900px;
             margin: 0px auto;
             text-align: center;
             overflow: hidden;
@@ -55,13 +54,13 @@
         .gba-pic {
             max-height: 100vh;
             max-width: 100vw;
+            max-width: 900px;
             width: 100%;
             margin: 0px auto;
             z-index: 9999;
         }
 
         .gba-ctrl {
-            display: none;
             z-index: 10002;
         }
 
@@ -86,7 +85,8 @@
         .gba-list-tips,
         .gba-list-ctrl,
         .gba-list-pad,
-        .gba-db-list {
+        .gba-db-list,
+        .gba-list>h3 {
             list-style: auto;
             font-size: 16px;
             margin: 5px !important;
@@ -149,7 +149,7 @@
 
 
         .vk {
-            position: fixed;
+            position:absolute;
             background-color: #00000014;
             text-align: center;
             overflow: hidden;
@@ -215,17 +215,17 @@
     <div class="gba-body">
         <canvas class="gba-pic" width="240" height="160"></canvas>
         <div class="gba-action">
-            <input type="button" value="zip/gba/srm" data-action="upload">
-            <input type="button" value="查看记录" data-action="showList">
+            <input type="button" value="上传文件" data-action="upload">
+            <input type="button" value="存档记录" data-action="showList">
             <input type="button" value="打开音乐" data-action="music">
         </div>
         <div class="gba-list" style="display: none;">
             <h3 data-action="close-list">缓存文件列表 点击这里关闭</h3>
-            <div class="gba-db-list">这是临时更换:
+            <div class="gba-db-list">这是临时数据库更换:
                 <input type="button" data-action="changeDB" value="DB1"> | 
                 <input type="button" data-action="changeDB" value="DB2"> | 
                 <input type="button" data-action="changeDB" value="DB3">
-                <div>把需要的数据下载下来,确认无误后,删除其他数据库数据.</div>
+                <div>点击可切换数据库,找回之前的存档.长传存档直接上传含有".srm"的文件即可.</div>
             </div>
             <ul class="gba-list-file"></ul>
             <div class="gba-list-tips">Worker 修改版，原作：<a target="_blank"
