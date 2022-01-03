@@ -205,7 +205,9 @@ window.NengeApp.GBA = new class {
                     'Escape': 'turbo',
                     'Backspace': 'reset'
                 };
-                this.ACTION_MAP[e] && this.ACTION_MAP[e]();
+                let mapKey = map[e.code];
+                if(mapKey&&e.type=='keyup')this.ACTION_MAP[mapKey] && this.ACTION_MAP[mapKey]();
+                return false;
             },
             "Keyboard": e => {
                 let elm = e.target;
@@ -387,7 +389,7 @@ window.NengeApp.GBA = new class {
         let SpKey = ['Escape', 'Backspace', 'Tab'],
             KeyboardEvent = e => {
                 if (SpKey.includes(e.code)) {
-                    return this.ACTION_MAP['KeyCode'](e.code);
+                    return this.ACTION_MAP['KeyCode'](e);
                 }
                 let elm = e.target;
                 if (elm) {
@@ -407,14 +409,13 @@ window.NengeApp.GBA = new class {
                 }
                 return false;
             },
-            KeyboardTemp = localStorage.getItem('KeyboardTemp'),
-            EventMap = ['keyup', 'keydown'];
+            KeyboardTemp = localStorage.getItem('KeyboardTemp');
         if (KeyboardTemp) {
             this.KeyboardTemp = KeyboardTemp.split(',');
         } else {
             this.KeyboardTemp = Array.from(this.Keyboard);
         }
-        EventMap.forEach(val => document.addEventListener(val, KeyboardEvent, {
+        ['keyup', 'keydown'].forEach(val => document.addEventListener(val, KeyboardEvent, {
             passive: false
         }));
         this.body.addEventListener('mouseup', (e) => {

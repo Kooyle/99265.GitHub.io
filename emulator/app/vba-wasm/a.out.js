@@ -952,12 +952,12 @@ Module.DATA = new class {
 				this.MSG('你覆盖了存档<br>但是并没有储存！<br>需要游戏中储存。');
 				return loadSrm(result);
 			} else if (!SrmName) {
-				SrmName = this.GetSrmName();
+				SrmName = this.GET_SRM_NAME();
 			}
 			this.getDB(SrmName).then(data => loadSrm(data));
 		} else if (SrmName && result) {
 			this.MSG('游戏没有运行！<br>所以储存了：' + GameName);
-			this.setDB(this.GetSrmName(GameName), result);
+			this.setDB(this.GET_SRM_NAME(GameName), result);
 		}
 	}
 	LOAD_FILE(u8, fileName, isZIP) {
@@ -1002,8 +1002,9 @@ Module.DATA = new class {
 		if (buf) return Module.HEAPU8.subarray(this.ptr, this.ptr + this.wasmSaveBufLen).set(this.GETU8(buf));
 	}
 	SAVE_SRM_DB() {
-		this.MSG('存档中！');
-		this.setDB(this.GetSrmName(), this.GETU8(data));
+		this.setDB(this.GET_SRM_NAME(), this.GETU8(this.SAVE_DATA)).then(()=>{
+			this.MSG('存档文件已经记录！');
+		});
 	}
 	ASM_SAVE_STATE() {
 		//刷新状态
@@ -1063,7 +1064,7 @@ Module.DATA = new class {
 	ASM_GET_dynCall_vi() {
 		return Module["asm"]["u"](address, value);
 	}
-	GetSrmName(GameName) {
+	GET_SRM_NAME(GameName) {
 		if (!GameName) {
 			GameName = this.GameName;
 		} else if (GameName.indexOf('game--') != 0) GameName = 'game--' + GameName;
