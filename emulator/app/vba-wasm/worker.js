@@ -393,7 +393,6 @@ window.NengeApp.GBA = new class {
                 if (elm) {
                     let action = elm.getAttribute('data-action');
                     if (action) return this.ACTION_MAP[action] && this.ACTION_MAP[action](e);
-                    return;
                 }
                 if (!this.Status) return;
                 let index = this.KeyboardTemp.indexOf(e.code);
@@ -618,7 +617,7 @@ window.NengeApp.GBA = new class {
                 var audioData0 = outputBuffer.getChannelData(0);
                 var audioData1 = outputBuffer.getChannelData(1);
                 if (this.data && this.data[0] && this.data[1]) {
-                    for (var i = 0; i < this.data[2]; i++) {
+                    for (var i = 0; i < this.data[0].length; i++) {
                         audioData0[i] = this.data[0][i] / 32768.0;
                         audioData1[i] = this.data[1][i] / 32768.0;
 
