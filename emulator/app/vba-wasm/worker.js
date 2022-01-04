@@ -79,7 +79,7 @@ window.NengeApp.GBA = new class {
             }
         }, false);
         worker.onerror = (e) => {
-            console.log(e.message, '\nline:' + e.lineno);
+            if(e.message)console.log(e.message, '\nline:' + e.lineno);
             this.MSG('发生错误');
             worker.terminate();
         };
@@ -109,8 +109,10 @@ window.NengeApp.GBA = new class {
                         this.worker.postMessage({
                             code: 'sendFile',
                             data: buf,
-                            name: file.name
+                            name: file.name,
+                            password:this.Q('.gba-rar-pass').value
                         }, [buf.buffer]);
+                        this.FileInput.value = "";
                     };
                     reader.readAsArrayBuffer(file);
                 }
