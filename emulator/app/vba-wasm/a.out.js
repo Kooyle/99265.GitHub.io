@@ -141,7 +141,7 @@ var Module = new class {
 				"nextFrame": () => odule.DATA.FrameFuc(),
 				"sendFile": result => {
 					if (!result || !result.data) return;
-					this.LOAD_FILE.apply(this,result);
+					this.LOAD_FILE(result.data,result.name,false,result.password);
 					result = null;
 				},
 				"showList": result => {
@@ -351,7 +351,7 @@ var Module = new class {
 			"377ABCAF":(u8, GameName, isZIP)=>{
 				//7z
 				let worker = new Worker("extract7z.min.js"),password=GameName.split('-pass-')[1]||"";
-				worker.addEventListener("message", (e) => {
+				worker.onmessage = (e) => {
 					let t = e.data.t,fileData = e.data.data;
 					if(fileData){
 						let fileData = e.data;
@@ -361,7 +361,11 @@ var Module = new class {
 						worker.terminate();
 						worker = null;
 					}
-				});
+				};
+				worker.onerror = e=>{
+					worker.terminate();
+					worker = null;
+				};
 				worker.postMessage(u8);
 
 			},
