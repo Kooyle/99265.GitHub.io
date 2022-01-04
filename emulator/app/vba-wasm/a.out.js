@@ -141,7 +141,7 @@ var Module = new class {
 				"nextFrame": () => odule.DATA.FrameFuc(),
 				"sendFile": result => {
 					if (!result || !result.data) return;
-					this.LOAD_FILE(result.data, result.name);
+					this.LOAD_FILE.apply(this,result);
 					result = null;
 				},
 				"showList": result => {
